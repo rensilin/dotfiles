@@ -75,7 +75,7 @@ install_homebrew() {
 install_macos_packages() {
 	install_homebrew
 	log "Installing macOS packages"
-	run "$BREW" install git neovim tmux ripgrep fd curl unzip
+	run "$BREW" install chezmoi git neovim tmux ripgrep fd curl unzip
 	PATH=$(dirname "$BREW"):$PATH
 	export PATH
 }
@@ -84,30 +84,30 @@ install_linux_packages() {
 	if command -v pacman >/dev/null 2>&1; then
 		log "Installing Arch Linux packages"
 		run_as_root pacman -Syu --needed --noconfirm \
-			base-devel ca-certificates curl fd git gzip neovim ripgrep tar tmux unzip
+			base-devel ca-certificates chezmoi curl fd git gzip neovim ripgrep tar tmux unzip
 	elif command -v apt-get >/dev/null 2>&1; then
 		log "Installing Debian/Ubuntu packages"
 		run_as_root apt-get update
 		run_as_root env DEBIAN_FRONTEND=noninteractive apt-get install -y \
-			build-essential ca-certificates curl fd-find git gzip neovim ripgrep tar tmux unzip
+			build-essential ca-certificates chezmoi curl fd-find git gzip neovim ripgrep tar tmux unzip
 	elif command -v dnf >/dev/null 2>&1; then
 		log "Installing Fedora/RHEL packages"
 		run_as_root dnf install -y \
-			ca-certificates curl fd-find gcc gcc-c++ git gzip make neovim ripgrep tar tmux unzip
+			ca-certificates chezmoi curl fd-find gcc gcc-c++ git gzip make neovim ripgrep tar tmux unzip
 	elif command -v zypper >/dev/null 2>&1; then
 		log "Installing openSUSE packages"
 		run_as_root zypper --non-interactive install \
-			ca-certificates curl fd gcc gcc-c++ git gzip make neovim ripgrep tar tmux unzip
+			ca-certificates chezmoi curl fd gcc gcc-c++ git gzip make neovim ripgrep tar tmux unzip
 	elif command -v apk >/dev/null 2>&1; then
 		log "Installing Alpine Linux packages"
 		run_as_root apk add --no-cache \
-			bash build-base ca-certificates curl fd git gzip neovim ripgrep tar tmux unzip
+			bash build-base ca-certificates chezmoi curl fd git gzip neovim ripgrep tar tmux unzip
 	elif command -v xbps-install >/dev/null 2>&1; then
 		log "Installing Void Linux packages"
 		run_as_root xbps-install -Sy \
-			base-devel ca-certificates curl fd git gzip neovim ripgrep tar tmux unzip
+			base-devel ca-certificates chezmoi curl fd git gzip neovim ripgrep tar tmux unzip
 	else
-		die "unsupported package manager; install git, curl, neovim, tmux, ripgrep, fd, unzip, and C build tools manually"
+		die "unsupported package manager; install chezmoi, git, curl, neovim, tmux, ripgrep, fd, unzip, and C build tools manually"
 	fi
 }
 
@@ -188,7 +188,7 @@ verify_environment() {
 	fi
 
 	MISSING=""
-	for COMMAND in git nvim rg tmux; do
+	for COMMAND in chezmoi git nvim rg tmux; do
 		if ! command -v "$COMMAND" >/dev/null 2>&1; then
 			MISSING="$MISSING $COMMAND"
 		fi

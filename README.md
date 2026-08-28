@@ -10,20 +10,22 @@
 
 因为这是私有仓库，新机器需要先准备好：
 
-- 可用的 `curl`
+- 可用的 Git
 - 已添加到 GitHub 账号的 SSH 密钥，并且 `ssh -T git@github.com` 能识别账号
 - 当前用户拥有 `sudo` 权限，或者已经是 root
 
-然后以普通用户执行一条命令：
+然后以普通用户执行：
 
 ```sh
-sh -c "$(curl -fsLS https://get.chezmoi.io/lb)" -- init --apply git@github.com:rensilin/dotfiles.git
+git clone --depth 1 git@github.com:rensilin/dotfiles.git "$HOME/.dotfiles-bootstrap" && \
+sh "$HOME/.dotfiles-bootstrap/install.sh"
 ```
 
-该命令会安装 chezmoi，然后仓库中的 `run_onchange_before_10-install-packages.sh` 会自动：
+仓库是私有的，因此必须先通过已经认证的 Git/SSH 取得安装脚本，不能使用匿名 `curl` 下载。`install.sh` 会自动：
 
 - 识别 macOS、Arch、Debian/Ubuntu、Fedora/RHEL、openSUSE、Alpine 或 Void Linux
 - 使用 Homebrew、pacman、apt、dnf、zypper、apk 或 xbps 安装软件
+- 通过对应包管理器安装 chezmoi
 - 安装 Git、Neovim、tmux、ripgrep、fd、curl、unzip 和本机构建工具
 - 在 glibc Linux 的 Neovim 版本低于 0.11 时，安装官方稳定版到 `~/.local/opt/nvim`
 - 拉取 Oh My Tmux 并应用全部配置；Neovim 插件在首次启动时自动安装
@@ -39,8 +41,10 @@ export PATH="$HOME/.local/bin:$PATH"
 如果机器上的软件已经由其他方式管理，只应用配置：
 
 ```sh
-DOTFILES_SKIP_PACKAGES=1 sh -c "$(curl -fsLS https://get.chezmoi.io/lb)" -- init --apply git@github.com:rensilin/dotfiles.git
+DOTFILES_SKIP_PACKAGES=1 sh "$HOME/.dotfiles-bootstrap/install.sh"
 ```
+
+此时必须先使用当前系统的包管理器安装 chezmoi。
 
 首次启动 Neovim 和 tmux 时可能需要网络下载插件。刷新配置及外部依赖：
 
