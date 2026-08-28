@@ -18,7 +18,8 @@ Linux, and heterogeneous Linux servers. Keep every change portable by default.
 - A missing optional command or GUI clipboard provider must degrade cleanly,
   especially on headless servers.
 - Keep shared configuration in the repository. Put host-only settings in
-  unmanaged local overrides such as `~/.config/nvim/lua/machine.lua`.
+  unmanaged local overrides such as `~/.config/nvim/lua/machine.lua` and
+  `~/.config/zsh/local.zsh`.
 
 ## Safety and scope
 
@@ -64,6 +65,7 @@ sh -n install.sh
 DOTFILES_DRY_RUN=1 sh install.sh
 sh -n run_onchange_before_10-install-packages.sh
 DOTFILES_DRY_RUN=1 sh run_onchange_before_10-install-packages.sh
+zsh -n dot_zshrc
 chezmoi verify
 chezmoi diff
 nvim --headless '+lua vim.defer_fn(function() vim.cmd("qa") end, 1000)' || true

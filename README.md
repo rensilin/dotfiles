@@ -1,6 +1,6 @@
 # dotfiles
 
-使用 [chezmoi](https://www.chezmoi.io/) 管理的个人 Neovim 和 tmux 配置，目标环境：
+使用 [chezmoi](https://www.chezmoi.io/) 管理的个人 Neovim、tmux 和 Zsh 配置，目标环境：
 
 - macOS
 - Arch Linux 桌面
@@ -97,8 +97,16 @@ chezmoi apply -v
 
 应用时，仓库中的安装脚本会识别 macOS、Arch、Debian/Ubuntu、Fedora/RHEL、
 openSUSE、Alpine 或 Void Linux，并通过对应包管理器安装 Neovim、tmux、
-ripgrep、fd 等依赖。运行过程中可能要求输入 sudo 密码。首次启动 Neovim 和
-tmux 时可能需要联网下载插件。
+Zsh、ripgrep、fd 等依赖。运行过程中可能要求输入 sudo 密码。首次应用配置时会
+联网下载 Oh My Tmux 和 Oh My Zsh；Neovim 会在首次启动时下载插件。
+
+Linux 上如果当前默认 shell 不是 Zsh，可以在确认 `command -v zsh` 有输出后切换：
+
+```sh
+chsh -s "$(command -v zsh)"
+```
+
+注销并重新登录后生效。macOS 默认已使用 Zsh，一般无需执行这一步。
 
 如果这台机器的软件已经由其他方式管理，只应用配置：
 
@@ -136,10 +144,11 @@ sh "$(chezmoi source-path)/run_onchange_before_10-install-packages.sh"
 直接修改实际配置后同步回仓库：
 
 ```sh
-chezmoi re-add ~/.config/nvim ~/.tmux.conf.local
+chezmoi re-add ~/.config/nvim ~/.tmux.conf.local ~/.zshrc
 chezmoi cd
-git diff
-git add .
+git status --short
+git add dot_config/nvim dot_tmux.conf.local dot_zshrc
+git diff --cached
 git commit -m "update configuration"
 git push
 ```
@@ -160,4 +169,14 @@ Neovim 会可选加载以下未托管文件：
 vim.g.machine_role = "work"
 ```
 
-不要把密码、Token 或私钥提交到本仓库。需要同步敏感信息时，应使用密码管理器或 chezmoi 的 age 加密。
+Zsh 会可选加载以下未托管文件：
+
+```text
+~/.config/zsh/local.zsh
+```
+
+机器专属的路径、代理或环境变量应写在这里。即使是私有仓库，也不要把 Token、
+密码或其他密钥直接写进托管的 `~/.zshrc`。
+
+不要把密码、Token 或私钥提交到本仓库。需要同步敏感信息时，应使用密码管理器或
+chezmoi 的 age 加密。

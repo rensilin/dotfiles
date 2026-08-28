@@ -1,0 +1,42 @@
+# Shared Zsh configuration for macOS and Linux.
+
+# Keep user-local commands ahead of system commands without duplicating entries.
+typeset -U path PATH
+for user_bin_dir in "$HOME/.local/bin/node/bin" "$HOME/.local/bin"; do
+	if [[ -d "$user_bin_dir" ]]; then
+		path=("$user_bin_dir" $path)
+	fi
+done
+unset user_bin_dir
+export PATH
+
+# Use Neovim when available, while allowing minimal servers to fall back to vi.
+if (( $+commands[nvim] )); then
+	export EDITOR=nvim
+	export VISUAL=nvim
+	alias vim=nvim
+else
+	export EDITOR=vi
+	export VISUAL=vi
+fi
+
+# Oh My Zsh is managed as a chezmoi external. Keep this file usable if the
+# external has not been downloaded yet or the machine is temporarily offline.
+export ZSH="${ZSH:-$HOME/.oh-my-zsh}"
+ZSH_THEME="ys"
+plugins=(git)
+
+if [[ -r "$ZSH/oh-my-zsh.sh" ]]; then
+	source "$ZSH/oh-my-zsh.sh"
+else
+	autoload -Uz compinit
+	compinit -i
+fi
+
+# This file is intentionally unmanaged and may contain host-only paths, proxy
+# settings, or other local customization. Keep secrets in a password manager.
+zsh_local_config="${XDG_CONFIG_HOME:-$HOME/.config}/zsh/local.zsh"
+if [[ -r "$zsh_local_config" ]]; then
+	source "$zsh_local_config"
+fi
+unset zsh_local_config
