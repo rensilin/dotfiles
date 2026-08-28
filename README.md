@@ -6,31 +6,99 @@
 - Arch Linux 桌面
 - 其他 Linux 发行版和无图形界面的服务器
 
-## 新机器一键安装
+## 在新机器上初始化
 
-因为这是私有仓库，新机器需要先准备好：
-
-- 可用的 Git
-- 已添加到 GitHub 账号的 SSH 密钥，并且 `ssh -T git@github.com` 能识别账号
-- 当前用户拥有 `sudo` 权限，或者已经是 root
-
-然后以普通用户执行：
+因为这是私有仓库，新机器需要先准备好 Git，以及能够访问仓库的 GitHub SSH 密钥：
 
 ```sh
-git clone --depth 1 git@github.com:rensilin/dotfiles.git "$HOME/.dotfiles-bootstrap" && \
-sh "$HOME/.dotfiles-bootstrap/install.sh"
+ssh -T git@github.com
 ```
 
-仓库是私有的，因此必须先通过已经认证的 Git/SSH 取得安装脚本，不能使用匿名 `curl` 下载。`install.sh` 会自动：
+### 1. 使用包管理器安装 chezmoi
 
-- 识别 macOS、Arch、Debian/Ubuntu、Fedora/RHEL、openSUSE、Alpine 或 Void Linux
-- 使用 Homebrew、pacman、apt、dnf、zypper、apk 或 xbps 安装软件
-- 通过对应包管理器安装 chezmoi
-- 安装 Git、Neovim、tmux、ripgrep、fd、curl、unzip 和本机构建工具
-- 在 glibc Linux 的 Neovim 版本低于 0.11 时，安装官方稳定版到 `~/.local/opt/nvim`
-- 拉取 Oh My Tmux 并应用全部配置；Neovim 插件在首次启动时自动安装
+macOS（Homebrew）：
 
-Arch Linux 会执行完整的 `pacman -Syu`，其他发行版也会更新包索引；运行过程中可能要求输入 sudo 密码。脚本是幂等的，chezmoi 仅在脚本首次出现或内容改变后执行它。
+```sh
+brew install chezmoi
+```
+
+Arch Linux：
+
+```sh
+sudo pacman -Syu chezmoi
+```
+
+Debian / Ubuntu：
+
+```sh
+sudo apt update
+sudo apt install chezmoi
+```
+
+Fedora：
+
+```sh
+sudo dnf install chezmoi
+```
+
+RHEL（需要 EPEL）：
+
+```sh
+sudo dnf install epel-release
+sudo dnf install chezmoi
+```
+
+openSUSE：
+
+```sh
+sudo zypper install chezmoi
+```
+
+Alpine Linux：
+
+```sh
+sudo apk add chezmoi
+```
+
+Void Linux：
+
+```sh
+sudo xbps-install -S chezmoi
+```
+
+其他发行版请优先通过其包管理器安装，具体可参考
+[chezmoi 官方安装文档](https://www.chezmoi.io/install/)。
+
+### 2. 初始化 dotfiles
+
+先克隆私有仓库并初始化 chezmoi，不立即修改当前配置：
+
+```sh
+chezmoi init git@github.com:rensilin/dotfiles.git
+```
+
+预览将要发生的变化：
+
+```sh
+chezmoi diff
+```
+
+确认无误后应用配置：
+
+```sh
+chezmoi apply -v
+```
+
+应用时，仓库中的安装脚本会识别 macOS、Arch、Debian/Ubuntu、Fedora/RHEL、
+openSUSE、Alpine 或 Void Linux，并通过对应包管理器安装 Neovim、tmux、
+ripgrep、fd 等依赖。运行过程中可能要求输入 sudo 密码。首次启动 Neovim 和
+tmux 时可能需要联网下载插件。
+
+如果这台机器的软件已经由其他方式管理，只应用配置：
+
+```sh
+DOTFILES_SKIP_PACKAGES=1 chezmoi apply -v
+```
 
 安装完成后建议确保用户级命令目录在 `PATH` 中：
 
@@ -38,15 +106,7 @@ Arch Linux 会执行完整的 `pacman -Syu`，其他发行版也会更新包索�
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-如果机器上的软件已经由其他方式管理，只应用配置：
-
-```sh
-DOTFILES_SKIP_PACKAGES=1 sh "$HOME/.dotfiles-bootstrap/install.sh"
-```
-
-此时必须先使用当前系统的包管理器安装 chezmoi。
-
-首次启动 Neovim 和 tmux 时可能需要网络下载插件。刷新配置及外部依赖：
+以后刷新配置及外部依赖：
 
 ```sh
 chezmoi update -v
@@ -59,7 +119,7 @@ chezmoi -R apply -v
 DOTFILES_DRY_RUN=1 sh "$(chezmoi source-path)/run_onchange_before_10-install-packages.sh"
 ```
 
-如果首次安装时使用了 `DOTFILES_SKIP_PACKAGES=1`，之后可以手动执行：
+使用了 `DOTFILES_SKIP_PACKAGES=1` 后，也可以在需要时手动安装仓库声明的依赖：
 
 ```sh
 sh "$(chezmoi source-path)/run_onchange_before_10-install-packages.sh"
