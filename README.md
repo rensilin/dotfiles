@@ -16,7 +16,24 @@ ssh -T git@github.com
 
 ### 1. 使用包管理器安装 chezmoi
 
-macOS（Homebrew）：
+macOS 先检查是否已经安装 Homebrew：
+
+```sh
+brew --version
+```
+
+如果提示找不到 `brew`，从 Homebrew 官方的
+[最新版本页面](https://github.com/Homebrew/brew/releases/latest) 下载并运行 `.pkg`
+安装包。如需安装 Apple 命令行工具，可先运行：
+
+```sh
+xcode-select --install
+```
+
+Homebrew 安装结束后，按照安装器提示把它加入 `PATH`，重新打开终端并再次运行
+`brew --version` 确认安装成功。
+
+然后安装 chezmoi：
 
 ```sh
 brew install chezmoi
