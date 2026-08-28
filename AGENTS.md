@@ -38,6 +38,8 @@ Linux, and heterogeneous Linux servers. Keep every change portable by default.
 Before committing, run the checks that are available on the current machine:
 
 ```sh
+sh -n run_onchange_before_10-install-packages.sh
+DOTFILES_DRY_RUN=1 sh run_onchange_before_10-install-packages.sh
 chezmoi verify
 chezmoi diff
 nvim --headless '+lua vim.defer_fn(function() vim.cmd("qa") end, 1000)' || true
