@@ -2,6 +2,10 @@
 
 set -eu
 
+# Explicit package-management helper used by install.sh or run manually. It is
+# not a chezmoi run script, so applying configuration never invokes sudo or
+# changes system packages unexpectedly.
+
 DRY_RUN=${DOTFILES_DRY_RUN:-0}
 TEMP_DIR=""
 

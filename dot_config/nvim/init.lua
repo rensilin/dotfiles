@@ -322,5 +322,9 @@ require("lazy").setup({
 	install = { colorscheme = { "catppuccin-nvim", "habamax" } },
 })
 
--- Optional, unmanaged per-machine overrides.
-pcall(require, "machine")
+-- Optional, unmanaged per-machine overrides. Ignore an absent file, but surface
+-- syntax and runtime errors when the machine-specific configuration exists.
+local machine_config = vim.fn.stdpath("config") .. "/lua/machine.lua"
+if (vim.uv or vim.loop).fs_stat(machine_config) then
+	dofile(machine_config)
+end

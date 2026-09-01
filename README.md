@@ -85,25 +85,30 @@ chezmoi init https://github.com/rensilin/dotfiles.git
 chezmoi diff
 ```
 
+`chezmoi diff` 默认也会展示待运行脚本的内容。只想检查配置文件差异时使用：
+
+```sh
+chezmoi diff --exclude=scripts
+```
+
 确认无误后应用配置：
 
 ```sh
 chezmoi apply -v
 ```
 
-应用时，仓库中的安装脚本会识别 macOS、Arch、Debian/Ubuntu、Fedora/RHEL、
-openSUSE、Alpine 或 Void Linux，并通过对应包管理器安装 Neovim、tmux、
-Zsh、ripgrep、fd 等依赖。运行过程中可能要求输入 sudo 密码。首次应用配置时会
-联网下载 Oh My Tmux 和 Oh My Zsh；Neovim 会在首次启动时下载插件。
+`chezmoi apply` 只应用配置和声明的外部依赖，不会自动运行包管理器、请求 sudo 或升级
+系统。首次应用时会联网下载 Oh My Tmux 和 Oh My Zsh；Neovim 会在首次启动时下载插件。
 
-应用前如果目标机器已经存在 `~/.zshrc`，迁移脚本不会直接覆盖它，而会：
+仓库不会整体托管或覆盖 `~/.zshrc`。chezmoi 的 `modify_` 文件只会确保其中存在一个
+带标记的加载块，用来加载托管的 `~/.config/zsh/chezmoi.zsh`。已有 `.zshrc` 的其他
+内容保持不变；加载块存在后，后续 `chezmoi apply` 计算出的内容相同，不会反复修改文件。
+这是 chezmoi 官方提供的“修改现有文件”目标类型：
+[Modify file](https://www.chezmoi.io/reference/target-types/#modify-file)。
 
-- 将其完整内容迁移到未托管的 `~/.config/zsh/local.zsh`
-- 在 `~/.config/zsh/backups/` 中保留一份仅存于本机的原始备份
-- 再写入跨平台的共享 `.zshrc` 入口
-
-迁移后的本地配置会作为该机器的完整 Zsh 配置加载，避免 Oh My Zsh 或插件被初始化
-两次。`local.zsh` 和备份均不会上传到仓库。
+从本仓库旧版本升级时，之前保存在 `~/.config/zsh/local.zsh` 中、带
+`# chezmoi: migrated-zshrc` 标记的原始 `.zshrc` 内容会自动还原，然后加入同一个加载块。
+普通的 `local.zsh` 仍作为机器专属覆盖在共享配置之后加载，并且不会上传仓库。
 
 Linux 上如果当前默认 shell 不是 Zsh，可以在确认 `command -v zsh` 有输出后切换：
 
@@ -112,12 +117,6 @@ chsh -s "$(command -v zsh)"
 ```
 
 注销并重新登录后生效。macOS 默认已使用 Zsh，一般无需执行这一步。
-
-如果这台机器的软件已经由其他方式管理，只应用配置：
-
-```sh
-DOTFILES_SKIP_PACKAGES=1 chezmoi apply -v
-```
 
 以后刷新配置及外部依赖：
 
@@ -129,13 +128,14 @@ chezmoi -R apply -v
 手动预览安装脚本而不执行包管理器：
 
 ```sh
-DOTFILES_DRY_RUN=1 sh "$(chezmoi source-path)/run_onchange_before_10-install-packages.sh"
+DOTFILES_DRY_RUN=1 sh "$(chezmoi source-path)/install-packages.sh"
 ```
 
-使用了 `DOTFILES_SKIP_PACKAGES=1` 后，也可以在需要时手动安装仓库声明的依赖：
+需要时可以显式安装仓库声明的依赖。脚本会探测 macOS、Arch、Debian/Ubuntu、
+Fedora/RHEL、openSUSE、Alpine 或 Void Linux，并调用对应包管理器：
 
 ```sh
-sh "$(chezmoi source-path)/run_onchange_before_10-install-packages.sh"
+sh "$(chezmoi source-path)/install-packages.sh"
 ```
 
 ## 日常修改
@@ -143,16 +143,23 @@ sh "$(chezmoi source-path)/run_onchange_before_10-install-packages.sh"
 直接修改实际配置后同步回仓库：
 
 ```sh
-chezmoi re-add ~/.config/nvim ~/.tmux.conf.local ~/.zshrc
+chezmoi re-add ~/.config/nvim ~/.tmux.conf.local ~/.config/zsh/chezmoi.zsh
 chezmoi cd
 git status --short
-git add dot_config/nvim dot_tmux.conf.local dot_zshrc
+git add dot_config/nvim dot_tmux.conf.local dot_config/private_zsh/chezmoi.zsh
 git diff --cached
 git commit -m "update configuration"
 git push
 ```
 
 `~/.tmux.conf` 是指向 Oh My Tmux 上游配置的托管软链接，不应 `re-add`。
+`~/.zshrc` 是机器所有的文件，也不应 `re-add`；仓库只通过 `modify_dot_zshrc` 维护其中
+的共享配置加载块。需要修改共享 Zsh 设置时也可以直接运行：
+
+```sh
+chezmoi edit ~/.config/zsh/chezmoi.zsh
+chezmoi apply ~/.config/zsh/chezmoi.zsh
+```
 
 ## 机器专属配置
 
@@ -174,8 +181,8 @@ Zsh 会可选加载以下未托管文件：
 ~/.config/zsh/local.zsh
 ```
 
-机器专属的 PATH、语言运行时、SDK、代理或环境变量必须写在这里，不要写进托管的
-`~/.zshrc`。例如当前机器需要用户级命令目录时，可以只在本地配置中加入：
+机器专属的 PATH、语言运行时、SDK、代理或环境变量建议写在这里；已有 `.zshrc` 也
+保持为本机文件，不会被上传。例如当前机器需要用户级命令目录时，可以只在本地配置中加入：
 
 ```zsh
 path=(~/.local/bin $path)
@@ -223,8 +230,9 @@ chezmoi 的 age 加密。
    命令探测和功能探测。缺少可选软件、剪贴板或 GUI 时应安全降级。
 6. 为机器专属配置设计不入库的本地覆盖文件，例如 Neovim 的
    `~/.config/nvim/lua/machine.lua` 和 Zsh 的 `~/.config/zsh/local.zsh`。
-   如果目标机器已经存在 `.zshrc`，必须先把其内容安全迁移到未托管的 local.zsh 并保留
-   本地备份，再应用共享入口；不要覆盖或上传原文件内容。
+   不要整体托管或上传 `.zshrc`；把共享 Zsh 配置放在单独的托管文件中，并使用 chezmoi
+   官方 `modify_` 目标类型，只在现有 `.zshrc` 中幂等地维护一段带标记的 `source` 引用。
+   已有内容必须原样保留，引用已存在时不得再次修改文件。
 7. 大型上游配置或框架使用 chezmoi externals 管理，插件目录不要提交；需要锁定版本的
    插件只提交锁文件。
 8. 如需自动安装 Neovim、tmux、Zsh、ripgrep、fd 等依赖，编写幂等、非交互、支持 dry-run

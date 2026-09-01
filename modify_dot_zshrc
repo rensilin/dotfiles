@@ -1,0 +1,62 @@
+#!/bin/sh
+
+set -eu
+
+START_MARKER='# >>> chezmoi shared zsh >>>'
+END_MARKER='# <<< chezmoi shared zsh <<<'
+LEGACY_MANAGED_MARKER='# chezmoi: managed-zshrc'
+LEGACY_MIGRATED_MARKER='# chezmoi: migrated-zshrc'
+CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
+LEGACY_LOCAL=$CONFIG_HOME/zsh/local.zsh
+INPUT=$(mktemp "${TMPDIR:-/tmp}/chezmoi-zshrc.XXXXXX")
+
+cleanup() {
+	rm -f -- "$INPUT"
+}
+
+trap cleanup EXIT HUP INT TERM
+cat >"$INPUT"
+
+# Once installed, preserve the file byte-for-byte. chezmoi will compute the
+# same target contents and therefore will not rewrite .zshrc. Refuse to touch a
+# partial block so a manually damaged file is never made more confusing.
+HAS_START=0
+HAS_END=0
+if grep -Fqx "$START_MARKER" "$INPUT"; then
+	HAS_START=1
+fi
+if grep -Fqx "$END_MARKER" "$INPUT"; then
+	HAS_END=1
+fi
+if [ "$HAS_START" -eq 1 ] && [ "$HAS_END" -eq 1 ]; then
+	cat "$INPUT"
+	exit 0
+fi
+if [ "$HAS_START" -ne "$HAS_END" ]; then
+	printf 'chezmoi: incomplete shared Zsh loader block in %s\n' "$HOME/.zshrc" >&2
+	exit 1
+fi
+
+FIRST_LINE=$(sed -n '1p' "$INPUT")
+if [ "$FIRST_LINE" = "$LEGACY_MANAGED_MARKER" ]; then
+	# Upgrade from the previous repository layout. Restore the complete original
+	# .zshrc that the old migration script preserved in local.zsh.
+	if [ -f "$LEGACY_LOCAL" ] &&
+		[ "$(sed -n '1p' "$LEGACY_LOCAL")" = "$LEGACY_MIGRATED_MARKER" ]; then
+		sed '1,2d' "$LEGACY_LOCAL"
+	fi
+else
+	cat "$INPUT"
+fi
+
+if [ -s "$INPUT" ] || [ "$FIRST_LINE" = "$LEGACY_MANAGED_MARKER" ]; then
+	printf '\n'
+fi
+
+cat <<'EOF'
+# >>> chezmoi shared zsh >>>
+_chezmoi_shared_zsh="${XDG_CONFIG_HOME:-$HOME/.config}/zsh/chezmoi.zsh"
+[[ -r "$_chezmoi_shared_zsh" ]] && source "$_chezmoi_shared_zsh"
+unset _chezmoi_shared_zsh
+# <<< chezmoi shared zsh <<<
+EOF

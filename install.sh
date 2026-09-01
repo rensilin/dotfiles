@@ -3,7 +3,7 @@
 set -eu
 
 SCRIPT_DIR=$(CDPATH= cd -P "$(dirname "$0")" && pwd)
-PACKAGE_SCRIPT="$SCRIPT_DIR/run_onchange_before_10-install-packages.sh"
+PACKAGE_SCRIPT="$SCRIPT_DIR/install-packages.sh"
 REPO_URL=${DOTFILES_REPO_URL:-}
 
 log() {
@@ -43,7 +43,7 @@ if [ "${DOTFILES_DRY_RUN:-0}" = "1" ]; then
 fi
 
 log "Applying dotfiles from $REPO_URL"
-DOTFILES_SKIP_PACKAGES=1 "$CHEZMOI" init --apply "$REPO_URL"
+"$CHEZMOI" init --apply "$REPO_URL"
 
 log "Bootstrap complete"
 printf 'Restart the shell if newly installed commands are not yet on PATH.\n'

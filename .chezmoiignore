@@ -1,6 +1,7 @@
 AGENTS.md
 README.md
 install.sh
+install-packages.sh
 tests/**
 .config/nvim/lua/machine.lua
 .config/zsh/local.zsh

@@ -21,11 +21,15 @@ Linux, and heterogeneous Linux servers. Keep every change portable by default.
   unmanaged local overrides such as `~/.config/nvim/lua/machine.lua` and
   `~/.config/zsh/local.zsh`.
 - Do not add user-local binary directories, language runtime paths, proxies,
-  SDK paths, or host environment variables to `dot_zshrc`. Put them in the
-  unmanaged `~/.config/zsh/local.zsh` instead.
-- Preserve a pre-existing destination `~/.zshrc`. The migration script must
-  move its complete contents into the local Zsh configuration before chezmoi
-  writes the shared entrypoint, retain a local backup, and remain idempotent.
+  SDK paths, or host environment variables to the managed
+  `dot_config/private_zsh/chezmoi.zsh`. Put them in the unmanaged
+  `~/.config/zsh/local.zsh` instead.
+- Keep a pre-existing destination `~/.zshrc` machine-owned. Never replace it
+  with a regular chezmoi-managed file. `modify_dot_zshrc` may only ensure that
+  one marked loader block exists, must preserve all other contents, and must be
+  idempotent. Shared Zsh behavior belongs in
+  `~/.config/zsh/chezmoi.zsh`; machine-only behavior belongs in the unmanaged
+  `~/.config/zsh/local.zsh` or the machine-owned `.zshrc`.
 
 ## Safety and scope
 
@@ -69,11 +73,11 @@ Before committing, run the checks that are available on the current machine:
 ```sh
 sh -n install.sh
 DOTFILES_DRY_RUN=1 sh install.sh
-sh -n run_onchange_before_10-install-packages.sh
-DOTFILES_DRY_RUN=1 sh run_onchange_before_10-install-packages.sh
-sh -n run_before_05-migrate-zshrc.sh
-sh tests/test-migrate-zshrc.sh
-zsh -n dot_zshrc
+sh -n install-packages.sh
+DOTFILES_DRY_RUN=1 sh install-packages.sh
+sh -n modify_dot_zshrc
+sh tests/test-zsh-integration.sh
+zsh -n dot_config/private_zsh/chezmoi.zsh
 chezmoi verify
 chezmoi diff
 nvim --headless '+lua vim.defer_fn(function() vim.cmd("qa") end, 1000)' || true
