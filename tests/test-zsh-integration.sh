@@ -53,7 +53,7 @@ if modify "$EXISTING_HOME" "$EXISTING_CONFIG" \
 	fail "incomplete loader block was accepted"
 fi
 
-# Normal local overrides load after shared defaults, except for the shared theme.
+# Normal local values load before Oh My Zsh initialization; the shared theme wins.
 NORMAL_CONFIG=$TEST_ROOT/normal-config
 mkdir -p "$NORMAL_CONFIG/zsh"
 printf '%s\n' 'export LOCAL_OVERRIDE_LOADED=1' 'ZSH_THEME=machine-theme' \

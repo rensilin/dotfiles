@@ -28,19 +28,11 @@ if [[ -z ${ZSH:-} ]]; then
 fi
 export ZSH
 zstyle ':omz:update' mode disabled
-ZSH_THEME=ys
 zsh_omz_already_loaded=$+functions[omz]
 
 if (( ! zsh_omz_already_loaded )); then
 	if (( ! ${+plugins} )); then
 		plugins=(git)
-	fi
-
-	if [[ -r $ZSH/oh-my-zsh.sh ]]; then
-		source $ZSH/oh-my-zsh.sh
-	elif (( ! $+functions[compdef] )); then
-		autoload -Uz compinit
-		compinit -i
 	fi
 fi
 
@@ -49,12 +41,19 @@ if [[ -r $zsh_local_config ]]; then
 	source $zsh_local_config
 fi
 
-# local.zsh may set other machine-specific values, but the shared theme wins.
-# Re-source it when Oh My Zsh was initialized earlier by the machine-owned
-# .zshrc so the override changes the active prompt, not only the variable.
+# local.zsh may set machine-specific values, but the shared theme wins. When
+# Oh My Zsh was initialized earlier by the machine-owned .zshrc, re-source the
+# theme so the override changes the active prompt, not only the variable.
 ZSH_THEME=ys
 zsh_shared_theme_file=$ZSH/themes/$ZSH_THEME.zsh-theme
-if (( zsh_omz_already_loaded )) && [[ -r $zsh_shared_theme_file ]]; then
-	source $zsh_shared_theme_file
+if (( zsh_omz_already_loaded )); then
+	if [[ -r $zsh_shared_theme_file ]]; then
+		source $zsh_shared_theme_file
+	fi
+elif [[ -r $ZSH/oh-my-zsh.sh ]]; then
+	source $ZSH/oh-my-zsh.sh
+elif (( ! $+functions[compdef] )); then
+	autoload -Uz compinit
+	compinit -i
 fi
 unset zsh_local_config zsh_shared_theme_file zsh_omz_already_loaded
