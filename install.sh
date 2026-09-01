@@ -20,7 +20,7 @@ die() {
 if [ -z "$REPO_URL" ] && command -v git >/dev/null 2>&1; then
 	REPO_URL=$(git -C "$SCRIPT_DIR" config --get remote.origin.url 2>/dev/null || true)
 fi
-REPO_URL=${REPO_URL:-git@github.com:rensilin/dotfiles.git}
+REPO_URL=${REPO_URL:-https://github.com/rensilin/dotfiles.git}
 
 if [ "${DOTFILES_SKIP_PACKAGES:-0}" != "1" ]; then
 	log "Installing chezmoi and development tools with the system package manager"

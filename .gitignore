@@ -1,0 +1,4 @@
+# Machine-local overrides must never be committed.
+dot_config/nvim/lua/machine.lua
+dot_config/zsh/local.zsh
+dot_config/zsh/backups/

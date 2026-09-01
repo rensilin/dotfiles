@@ -20,12 +20,18 @@ Linux, and heterogeneous Linux servers. Keep every change portable by default.
 - Keep shared configuration in the repository. Put host-only settings in
   unmanaged local overrides such as `~/.config/nvim/lua/machine.lua` and
   `~/.config/zsh/local.zsh`.
+- Do not add user-local binary directories, language runtime paths, proxies,
+  SDK paths, or host environment variables to `dot_zshrc`. Put them in the
+  unmanaged `~/.config/zsh/local.zsh` instead.
+- Preserve a pre-existing destination `~/.zshrc`. The migration script must
+  move its complete contents into the local Zsh configuration before chezmoi
+  writes the shared entrypoint, retain a local backup, and remain idempotent.
 
 ## Safety and scope
 
 - Never commit credentials, access tokens, private keys, company endpoints,
   proxy settings, machine identities, history, caches, sessions, or generated
-  plugin directories. A private repository is not a secrets manager.
+  plugin directories. A Git repository is not a secrets manager.
 - Treat `.env`, `.env.*`, `id_*`, `*.pem`, `*.key`, `*.p12`, `*.pfx`,
   `credentials*`, `secrets*`, auth cookies, password-manager exports, and cloud
   CLI credential files as forbidden unless the file is an explicitly reviewed
@@ -43,7 +49,7 @@ Linux, and heterogeneous Linux servers. Keep every change portable by default.
 - If any staged file or line might contain a secret, stop before committing or
   pushing. Remove it from the change and use an unmanaged local override, a
   password manager, or chezmoi age encryption instead. Do not weaken this rule
-  because the GitHub repository is private.
+  regardless of the GitHub repository's visibility.
 - If a real secret is ever committed or pushed, assume it is compromised:
   immediately tell the user to revoke or rotate it. Deleting it in a later
   commit is insufficient because it remains in Git history. Rewriting remote
@@ -65,6 +71,8 @@ sh -n install.sh
 DOTFILES_DRY_RUN=1 sh install.sh
 sh -n run_onchange_before_10-install-packages.sh
 DOTFILES_DRY_RUN=1 sh run_onchange_before_10-install-packages.sh
+sh -n run_before_05-migrate-zshrc.sh
+sh tests/test-migrate-zshrc.sh
 zsh -n dot_zshrc
 chezmoi verify
 chezmoi diff

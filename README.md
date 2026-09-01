@@ -8,11 +8,7 @@
 
 ## 在新机器上初始化
 
-因为这是私有仓库，新机器需要先准备好 Git，以及能够访问仓库的 GitHub SSH 密钥：
-
-```sh
-ssh -T git@github.com
-```
+这是公开仓库，新机器只需先准备好 Git，不需要配置 GitHub SSH 密钥。
 
 ### 1. 使用包管理器安装 chezmoi
 
@@ -77,10 +73,10 @@ sudo xbps-install -S chezmoi
 
 ### 2. 初始化 dotfiles
 
-先克隆私有仓库并初始化 chezmoi，不立即修改当前配置：
+先克隆公开仓库并初始化 chezmoi，不立即修改当前配置：
 
 ```sh
-chezmoi init git@github.com:rensilin/dotfiles.git
+chezmoi init https://github.com/rensilin/dotfiles.git
 ```
 
 预览将要发生的变化：
@@ -100,6 +96,15 @@ openSUSE、Alpine 或 Void Linux，并通过对应包管理器安装 Neovim、tm
 Zsh、ripgrep、fd 等依赖。运行过程中可能要求输入 sudo 密码。首次应用配置时会
 联网下载 Oh My Tmux 和 Oh My Zsh；Neovim 会在首次启动时下载插件。
 
+应用前如果目标机器已经存在 `~/.zshrc`，迁移脚本不会直接覆盖它，而会：
+
+- 将其完整内容迁移到未托管的 `~/.config/zsh/local.zsh`
+- 在 `~/.config/zsh/backups/` 中保留一份仅存于本机的原始备份
+- 再写入跨平台的共享 `.zshrc` 入口
+
+迁移后的本地配置会作为该机器的完整 Zsh 配置加载，避免 Oh My Zsh 或插件被初始化
+两次。`local.zsh` 和备份均不会上传到仓库。
+
 Linux 上如果当前默认 shell 不是 Zsh，可以在确认 `command -v zsh` 有输出后切换：
 
 ```sh
@@ -112,12 +117,6 @@ chsh -s "$(command -v zsh)"
 
 ```sh
 DOTFILES_SKIP_PACKAGES=1 chezmoi apply -v
-```
-
-安装完成后建议确保用户级命令目录在 `PATH` 中：
-
-```sh
-export PATH="$HOME/.local/bin:$PATH"
 ```
 
 以后刷新配置及外部依赖：
@@ -175,8 +174,15 @@ Zsh 会可选加载以下未托管文件：
 ~/.config/zsh/local.zsh
 ```
 
-机器专属的路径、代理或环境变量应写在这里。即使是私有仓库，也不要把 Token、
-密码或其他密钥直接写进托管的 `~/.zshrc`。
+机器专属的 PATH、语言运行时、SDK、代理或环境变量必须写在这里，不要写进托管的
+`~/.zshrc`。例如当前机器需要用户级命令目录时，可以只在本地配置中加入：
+
+```zsh
+path=(~/.local/bin $path)
+typeset -U path PATH
+```
+
+即使仓库当前是公开的，也不要把 Token、密码或其他密钥直接写进托管配置。
 
 不要把密码、Token 或私钥提交到本仓库。需要同步敏感信息时，应使用密码管理器或
 chezmoi 的 age 加密。
@@ -197,7 +203,7 @@ chezmoi 的 age 加密。
 - 目标机器：macOS、Arch Linux、其他常见 Linux 发行版和无图形界面的服务器
 
 目标：
-使用 chezmoi 创建一个私有 GitHub dotfiles 仓库，使我能够在新机器上先通过系统包管理器
+使用 chezmoi 创建一个 GitHub dotfiles 仓库，使我能够在新机器上先通过系统包管理器
 安装 chezmoi，再运行 `chezmoi init`、预览差异并应用配置。
 
 请遵守以下要求：
@@ -217,17 +223,19 @@ chezmoi 的 age 加密。
    命令探测和功能探测。缺少可选软件、剪贴板或 GUI 时应安全降级。
 6. 为机器专属配置设计不入库的本地覆盖文件，例如 Neovim 的
    `~/.config/nvim/lua/machine.lua` 和 Zsh 的 `~/.config/zsh/local.zsh`。
+   如果目标机器已经存在 `.zshrc`，必须先把其内容安全迁移到未托管的 local.zsh 并保留
+   本地备份，再应用共享入口；不要覆盖或上传原文件内容。
 7. 大型上游配置或框架使用 chezmoi externals 管理，插件目录不要提交；需要锁定版本的
    插件只提交锁文件。
 8. 如需自动安装 Neovim、tmux、Zsh、ripgrep、fd 等依赖，编写幂等、非交互、支持 dry-run
    的 POSIX sh 脚本，并根据可用包管理器选择命令。不能支持的系统要给出清晰错误和手动方案。
 9. 在仓库根目录创建 AGENTS.md，明确跨平台约束和防止密钥入库的规则。要求每次提交前
    显式检查暂存文件列表、暂存差异和常见密钥模式；禁止盲目执行 `git add .`。
-10. 编写中文 README，至少说明：各系统如何安装 chezmoi、私有仓库的 SSH 前置条件、
-    `chezmoi init`、`chezmoi diff`、`chezmoi apply`、`chezmoi update`、日常修改流程、
-    机器专属覆盖方式、Linux 切换默认 shell 的方法，以及密钥安全注意事项。
-11. 为 GitHub 创建私有仓库前先确认仓库名和当前登录账号。任何需要登录、授权或扩大范围的
-    操作都应暂停并向我请求授权，不要把认证信息写进仓库。
+10. 编写中文 README，至少说明：各系统如何安装 chezmoi、公开仓库的 HTTPS 或私有仓库的
+    SSH 前置条件、`chezmoi init`、`chezmoi diff`、`chezmoi apply`、`chezmoi update`、
+    日常修改流程、机器专属覆盖方式、Linux 切换默认 shell 的方法，以及密钥安全注意事项。
+11. 创建 GitHub 仓库前先确认仓库名、当前登录账号和公开/私有选择。任何需要登录、授权、
+    推送或改变可见性的操作都应暂停并向我请求授权，不要把认证信息写进仓库。
 12. 提交前运行与配置对应的语法和启动检查，并验证 chezmoi 能正确渲染目标文件。
     逐个暂存确定的文件，检查 `git diff --cached` 和密钥模式，确认安全后再提交并推送。
 13. 不要删除或覆盖我现有的配置。需要应用新配置时，先运行 `chezmoi diff` 给我审阅；
