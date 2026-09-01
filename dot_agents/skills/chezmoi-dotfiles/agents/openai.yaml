@@ -1,0 +1,4 @@
+interface:
+  display_name: "Chezmoi Dotfiles"
+  short_description: "Safely edit, apply, and sync managed dotfiles"
+  default_prompt: "Use $chezmoi-dotfiles to update this managed configuration and sync it to GitHub."
