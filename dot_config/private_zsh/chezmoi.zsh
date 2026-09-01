@@ -21,17 +21,16 @@ fi
 
 # Oh My Zsh is managed by chezmoi as an external. Prevent its own updater from
 # changing that managed checkout, and do not initialize it twice when an
-# existing machine-owned .zshrc already loaded it.
-if (( ! $+functions[omz] )); then
-	if [[ -z ${ZSH:-} ]]; then
-		ZSH=$HOME/.oh-my-zsh
-	fi
-	export ZSH
-	zstyle ':omz:update' mode disabled
+# existing machine-owned .zshrc already loaded it. The shared theme is
+# intentionally authoritative across machines.
+if [[ -z ${ZSH:-} ]]; then
+	ZSH=$HOME/.oh-my-zsh
+fi
+export ZSH
+zstyle ':omz:update' mode disabled
+ZSH_THEME=ys
 
-	if [[ -z ${ZSH_THEME+x} ]]; then
-		ZSH_THEME=ys
-	fi
+if (( ! $+functions[omz] )); then
 	if (( ! ${+plugins} )); then
 		plugins=(git)
 	fi
@@ -54,4 +53,13 @@ if [[ -r $zsh_local_config ]]; then
 		source $zsh_local_config
 	fi
 fi
-unset zsh_local_config zsh_local_first_line
+
+# local.zsh may set other machine-specific values, but the shared theme wins.
+# Re-source it when Oh My Zsh was initialized earlier by the machine-owned
+# .zshrc so the override changes the active prompt, not only the variable.
+ZSH_THEME=ys
+zsh_shared_theme_file=$ZSH/themes/$ZSH_THEME.zsh-theme
+if (( $+functions[omz] )) && [[ -r $zsh_shared_theme_file ]]; then
+	source $zsh_shared_theme_file
+fi
+unset zsh_local_config zsh_local_first_line zsh_shared_theme_file
