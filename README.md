@@ -110,7 +110,8 @@ chezmoi apply -v
 `~/.zshrc` 中，不会上传仓库。
 
 仓库同样不会整体托管或上传 `~/.gitconfig`，以免泄露工作邮箱、内部地址、签名配置、
-Hooks 路径或其他机器信息。`modify_dot_gitconfig` 只在对应配置缺失时补充：
+Hooks 路径或其他机器信息。同步时，脚本只在对应配置缺失时执行
+`git config --global`：
 
 - `user.name = rensilin`
 - `user.email = scgyrsl@gmail.com`
@@ -169,8 +170,8 @@ chezmoi edit ~/.config/zsh/chezmoi.zsh
 chezmoi apply ~/.config/zsh/chezmoi.zsh
 ```
 
-`~/.gitconfig` 也不应 `re-add`。仓库只保存补齐缺失默认值的
-`modify_dot_gitconfig`，不会上传各机器已有的 Git 配置。
+`~/.gitconfig` 也不应 `re-add`。仓库只保存使用 `git config --global` 补齐缺失默认值的
+脚本，不会上传各机器已有的 Git 配置。
 
 ## 机器专属配置
 

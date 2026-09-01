@@ -3,7 +3,7 @@
 set -eu
 
 ROOT=$(CDPATH= cd -P "$(dirname "$0")/.." && pwd)
-SCRIPT="$ROOT/modify_dot_gitconfig"
+SCRIPT="$ROOT/run_onchange_after_20-configure-git.sh"
 TEST_DIR=$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-gitconfig-test.XXXXXX")
 DEFAULT_LG="log --color --graph --pretty=format:'%C(bold yellow)%h%Creset -%C(auto)%d%Creset %s %C(green)(%cr) %C(bold cyan)<%an>%Creset' --abbrev-commit"
 
@@ -16,36 +16,36 @@ fail() {
 	exit 1
 }
 
-assert_value() {
-	FILE=$1
+assert_global_value() {
+	HOME_DIR=$1
 	KEY=$2
 	EXPECTED=$3
-	ACTUAL=$(git config --file "$FILE" --get "$KEY") || fail "$KEY is missing"
+	ACTUAL=$(HOME="$HOME_DIR" XDG_CONFIG_HOME="$HOME_DIR/.config" \
+		GIT_CONFIG_NOSYSTEM=1 git config --global --get "$KEY") || fail "$KEY is missing"
 	[ "$ACTUAL" = "$EXPECTED" ] || fail "$KEY: expected '$EXPECTED', got '$ACTUAL'"
 }
 
-render() {
+configure() {
 	HOME_DIR=$1
-	INPUT=$2
-	OUTPUT=$3
 	mkdir -p "$HOME_DIR/.config"
 	HOME="$HOME_DIR" XDG_CONFIG_HOME="$HOME_DIR/.config" \
-		GIT_CONFIG_NOSYSTEM=1 sh "$SCRIPT" <"$INPUT" >"$OUTPUT"
+		GIT_CONFIG_NOSYSTEM=1 sh "$SCRIPT"
 }
 
 trap cleanup EXIT HUP INT TERM
 unset GIT_CONFIG_GLOBAL GIT_CONFIG_SYSTEM
 
-EMPTY="$TEST_DIR/empty"
-FIRST="$TEST_DIR/first"
-: >"$EMPTY"
-render "$TEST_DIR/home-empty" "$EMPTY" "$FIRST"
-assert_value "$FIRST" user.name rensilin
-assert_value "$FIRST" user.email scgyrsl@gmail.com
-assert_value "$FIRST" alias.lg "$DEFAULT_LG"
+EMPTY_HOME="$TEST_DIR/home-empty"
+configure "$EMPTY_HOME"
+assert_global_value "$EMPTY_HOME" user.name rensilin
+assert_global_value "$EMPTY_HOME" user.email scgyrsl@gmail.com
+assert_global_value "$EMPTY_HOME" alias.lg "$DEFAULT_LG"
+HOME="$EMPTY_HOME" XDG_CONFIG_HOME="$EMPTY_HOME/.config" GIT_CONFIG_NOSYSTEM=1 \
+	GIT_PAGER=cat git -C "$ROOT" --no-pager lg -1 >/dev/null
 
-EXISTING="$TEST_DIR/existing"
-cat >"$EXISTING" <<'EOF'
+EXISTING_HOME="$TEST_DIR/home-existing"
+mkdir -p "$EXISTING_HOME"
+cat >"$EXISTING_HOME/.gitconfig" <<'EOF'
 [user]
 	name = existing-user
 	email = existing@example.com
@@ -54,23 +54,25 @@ cat >"$EXISTING" <<'EOF'
 [core]
 	editor = vim
 EOF
-UNCHANGED="$TEST_DIR/unchanged"
-render "$TEST_DIR/home-existing" "$EXISTING" "$UNCHANGED"
-cmp -s "$EXISTING" "$UNCHANGED" || fail 'complete existing config was modified'
+cp "$EXISTING_HOME/.gitconfig" "$TEST_DIR/existing-before"
+configure "$EXISTING_HOME"
+cmp -s "$TEST_DIR/existing-before" "$EXISTING_HOME/.gitconfig" || \
+	fail 'complete existing config was modified'
 
-PARTIAL="$TEST_DIR/partial"
-cat >"$PARTIAL" <<'EOF'
+PARTIAL_HOME="$TEST_DIR/home-partial"
+mkdir -p "$PARTIAL_HOME"
+cat >"$PARTIAL_HOME/.gitconfig" <<'EOF'
 [user]
 	name = existing-user
 EOF
-COMPLETED="$TEST_DIR/completed"
-render "$TEST_DIR/home-partial" "$PARTIAL" "$COMPLETED"
-assert_value "$COMPLETED" user.name existing-user
-assert_value "$COMPLETED" user.email scgyrsl@gmail.com
-assert_value "$COMPLETED" alias.lg "$DEFAULT_LG"
+configure "$PARTIAL_HOME"
+assert_global_value "$PARTIAL_HOME" user.name existing-user
+assert_global_value "$PARTIAL_HOME" user.email scgyrsl@gmail.com
+assert_global_value "$PARTIAL_HOME" alias.lg "$DEFAULT_LG"
 
-SECOND="$TEST_DIR/second"
-render "$TEST_DIR/home-idempotent" "$COMPLETED" "$SECOND"
-cmp -s "$COMPLETED" "$SECOND" || fail 'second render was not idempotent'
+cp "$PARTIAL_HOME/.gitconfig" "$TEST_DIR/partial-before-second-run"
+configure "$PARTIAL_HOME"
+cmp -s "$TEST_DIR/partial-before-second-run" "$PARTIAL_HOME/.gitconfig" || \
+	fail 'second run was not idempotent'
 
 printf 'Git config integration tests passed\n'
