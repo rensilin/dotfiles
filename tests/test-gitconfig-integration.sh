@@ -3,7 +3,7 @@
 set -eu
 
 ROOT=$(CDPATH= cd -P "$(dirname "$0")/.." && pwd)
-SCRIPT="$ROOT/run_onchange_after_20-configure-git.sh"
+SCRIPT="$ROOT/run_once_after_20-configure-git.sh"
 TEST_DIR=$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-gitconfig-test.XXXXXX")
 DEFAULT_LG="log --color --graph --pretty=format:'%C(bold yellow)%h%Creset -%C(auto)%d%Creset %s %C(green)(%cr) %C(bold cyan)<%an>%Creset' --abbrev-commit"
 

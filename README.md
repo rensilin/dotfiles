@@ -110,14 +110,16 @@ chezmoi apply -v
 `~/.zshrc` 中，不会上传仓库。
 
 仓库同样不会整体托管或上传 `~/.gitconfig`，以免泄露工作邮箱、内部地址、签名配置、
-Hooks 路径或其他机器信息。同步时，脚本只在对应配置缺失时执行
-`git config --global`：
+Hooks 路径或其他机器信息。每台机器首次执行 `chezmoi apply` 时，脚本只在对应配置
+缺失时执行 `git config --global`：
 
 - `user.name = rensilin`
 - `user.email = scgyrsl@gmail.com`
 - `git lg` 日志别名
 
 已有的姓名、邮箱或 `alias.lg` 始终保留，不会被默认值覆盖。
+脚本成功执行后会被 chezmoi 记为已完成；内容不变时，后续普通的 `apply` 或 `update`
+不再执行。
 
 Linux 上如果当前默认 shell 不是 Zsh，可以在确认 `command -v zsh` 有输出后切换：
 

@@ -32,8 +32,9 @@ Linux, and heterogeneous Linux servers. Keep every change portable by default.
 - Keep `~/.gitconfig` machine-owned because it may contain work identities,
   internal URL rewrites, hooks, signing settings, and machine paths. Never add
   or copy the complete file into the repository. Git defaults must be applied
-  with conditional `git config --global` commands that preserve existing
-  values and remain idempotent.
+  once during the machine's initial apply, using conditional
+  `git config --global` commands that preserve existing values and remain
+  idempotent.
 
 ## Safety and scope
 
@@ -82,7 +83,7 @@ DOTFILES_DRY_RUN=1 sh install-packages.sh
 sh -n modify_dot_zshrc
 sh tests/test-zsh-integration.sh
 zsh -n dot_config/private_zsh/chezmoi.zsh
-sh -n run_onchange_after_20-configure-git.sh
+sh -n run_once_after_20-configure-git.sh
 sh tests/test-gitconfig-integration.sh
 chezmoi verify
 chezmoi diff
