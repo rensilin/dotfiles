@@ -29,6 +29,11 @@ Linux, and heterogeneous Linux servers. Keep every change portable by default.
   one marked loader block exists, must preserve all other contents, and must be
   idempotent. Shared Zsh behavior belongs in
   `~/.config/zsh/chezmoi.zsh`; machine-only behavior belongs in `.zshrc`.
+- Keep `~/.gitconfig` machine-owned because it may contain work identities,
+  internal URL rewrites, hooks, signing settings, and machine paths. Never add
+  or copy the complete file into the repository. `modify_dot_gitconfig` may
+  only fill missing portable defaults, must preserve existing values, and must
+  be idempotent.
 
 ## Safety and scope
 
@@ -77,6 +82,8 @@ DOTFILES_DRY_RUN=1 sh install-packages.sh
 sh -n modify_dot_zshrc
 sh tests/test-zsh-integration.sh
 zsh -n dot_config/private_zsh/chezmoi.zsh
+sh -n modify_dot_gitconfig
+sh tests/test-gitconfig-integration.sh
 chezmoi verify
 chezmoi diff
 nvim --headless '+lua vim.defer_fn(function() vim.cmd("qa") end, 1000)' || true

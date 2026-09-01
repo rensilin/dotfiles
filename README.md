@@ -109,6 +109,15 @@ chezmoi apply -v
 共享配置使用 Oh My Zsh 的 `ys` 主题。机器专属的 Zsh 配置直接写在机器所有的
 `~/.zshrc` 中，不会上传仓库。
 
+仓库同样不会整体托管或上传 `~/.gitconfig`，以免泄露工作邮箱、内部地址、签名配置、
+Hooks 路径或其他机器信息。`modify_dot_gitconfig` 只在对应配置缺失时补充：
+
+- `user.name = rensilin`
+- `user.email = scgyrsl@gmail.com`
+- `git lg` 日志别名
+
+已有的姓名、邮箱或 `alias.lg` 始终保留，不会被默认值覆盖。
+
 Linux 上如果当前默认 shell 不是 Zsh，可以在确认 `command -v zsh` 有输出后切换：
 
 ```sh
@@ -159,6 +168,9 @@ git push
 chezmoi edit ~/.config/zsh/chezmoi.zsh
 chezmoi apply ~/.config/zsh/chezmoi.zsh
 ```
+
+`~/.gitconfig` 也不应 `re-add`。仓库只保存补齐缺失默认值的
+`modify_dot_gitconfig`，不会上传各机器已有的 Git 配置。
 
 ## 机器专属配置
 
