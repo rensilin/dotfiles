@@ -106,9 +106,8 @@ chezmoi apply -v
 这是 chezmoi 官方提供的“修改现有文件”目标类型：
 [Modify file](https://www.chezmoi.io/reference/target-types/#modify-file)。
 
-从本仓库旧版本升级时，之前保存在 `~/.config/zsh/local.zsh` 中、带
-`# chezmoi: migrated-zshrc` 标记的原始 `.zshrc` 内容会自动还原，然后加入同一个加载块。
-普通的 `local.zsh` 仍作为机器专属覆盖在共享配置之后加载，并且不会上传仓库。
+可选的 `local.zsh` 会作为机器专属配置加载，并且不会上传仓库。共享配置会强制使用
+Oh My Zsh 的 `ys` 主题，机器配置中的其他主题设置不会覆盖它。
 
 Linux 上如果当前默认 shell 不是 Zsh，可以在确认 `command -v zsh` 有输出后切换：
 

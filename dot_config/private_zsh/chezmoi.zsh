@@ -29,8 +29,9 @@ fi
 export ZSH
 zstyle ':omz:update' mode disabled
 ZSH_THEME=ys
+zsh_omz_already_loaded=$+functions[omz]
 
-if (( ! $+functions[omz] )); then
+if (( ! zsh_omz_already_loaded )); then
 	if (( ! ${+plugins} )); then
 		plugins=(git)
 	fi
@@ -44,14 +45,8 @@ if (( ! $+functions[omz] )); then
 fi
 
 zsh_local_config=${XDG_CONFIG_HOME:-$HOME/.config}/zsh/local.zsh
-zsh_local_first_line=
 if [[ -r $zsh_local_config ]]; then
-	IFS= read -r zsh_local_first_line < $zsh_local_config || true
-	# Older versions of this repository migrated the complete original .zshrc
-	# here. modify_dot_zshrc restores that content, so do not source it twice.
-	if [[ $zsh_local_first_line != '# chezmoi: migrated-zshrc' ]]; then
-		source $zsh_local_config
-	fi
+	source $zsh_local_config
 fi
 
 # local.zsh may set other machine-specific values, but the shared theme wins.
@@ -59,7 +54,7 @@ fi
 # .zshrc so the override changes the active prompt, not only the variable.
 ZSH_THEME=ys
 zsh_shared_theme_file=$ZSH/themes/$ZSH_THEME.zsh-theme
-if (( $+functions[omz] )) && [[ -r $zsh_shared_theme_file ]]; then
+if (( zsh_omz_already_loaded )) && [[ -r $zsh_shared_theme_file ]]; then
 	source $zsh_shared_theme_file
 fi
-unset zsh_local_config zsh_local_first_line zsh_shared_theme_file
+unset zsh_local_config zsh_shared_theme_file zsh_omz_already_loaded

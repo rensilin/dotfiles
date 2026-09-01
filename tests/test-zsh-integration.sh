@@ -53,23 +53,7 @@ if modify "$EXISTING_HOME" "$EXISTING_CONFIG" \
 	fail "incomplete loader block was accepted"
 fi
 
-# Upgrade from the previous layout by restoring the old .zshrc from local.zsh.
-LEGACY_HOME=$TEST_ROOT/legacy-home
-LEGACY_CONFIG=$TEST_ROOT/legacy-config
-mkdir -p "$LEGACY_HOME" "$LEGACY_CONFIG/zsh"
-printf '%s\n' '# chezmoi: managed-zshrc' 'old shared entrypoint' >"$TEST_ROOT/legacy-zshrc"
-printf '%s\n' '# chezmoi: migrated-zshrc' \
-	'# Preserved by chezmoi from the .zshrc that existed before apply.' \
-	'export RESTORED_FROM_LEGACY=1' >"$LEGACY_CONFIG/zsh/local.zsh"
-modify "$LEGACY_HOME" "$LEGACY_CONFIG" "$TEST_ROOT/legacy-zshrc" "$TEST_ROOT/legacy-output"
-grep -Fqx 'export RESTORED_FROM_LEGACY=1' "$TEST_ROOT/legacy-output" || \
-	fail "legacy .zshrc was not restored"
-if grep -Fq 'old shared entrypoint' "$TEST_ROOT/legacy-output"; then
-	fail "legacy managed entrypoint was retained"
-fi
-
-# Normal local overrides load after shared defaults; legacy migrated content is
-# skipped because it has already been restored to .zshrc.
+# Normal local overrides load after shared defaults, except for the shared theme.
 NORMAL_CONFIG=$TEST_ROOT/normal-config
 mkdir -p "$NORMAL_CONFIG/zsh"
 printf '%s\n' 'export LOCAL_OVERRIDE_LOADED=1' 'ZSH_THEME=machine-theme' \
@@ -86,13 +70,5 @@ printf '%s\n' 'export LOADED_THEME=$ZSH_THEME' >"$LOADED_ZSH/themes/ys.zsh-theme
 XDG_CONFIG_HOME=$TEST_ROOT/no-local-config ZSH=$LOADED_ZSH ZSH_THEME=machine-theme \
 	zsh -f -c 'omz() { :; }; source "$1"; [ "$ZSH_THEME" = ys ]; [ "$LOADED_THEME" = ys ]' \
 	test-zsh "$SHARED_CONFIG" || fail "shared theme did not replace loaded machine theme"
-
-MIGRATED_CONFIG=$TEST_ROOT/migrated-config
-mkdir -p "$MIGRATED_CONFIG/zsh"
-printf '%s\n' '# chezmoi: migrated-zshrc' 'export MUST_NOT_LOAD=1' \
-	>"$MIGRATED_CONFIG/zsh/local.zsh"
-XDG_CONFIG_HOME=$MIGRATED_CONFIG ZSH=$TEST_ROOT/missing-oh-my-zsh \
-	zsh -f -c 'source "$1"; [ -z "${MUST_NOT_LOAD:-}" ]' \
-	test-zsh "$SHARED_CONFIG" || fail "legacy migrated content loaded twice"
 
 printf 'Zsh integration tests passed\n'

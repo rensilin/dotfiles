@@ -4,10 +4,6 @@ set -eu
 
 START_MARKER='# >>> chezmoi shared zsh >>>'
 END_MARKER='# <<< chezmoi shared zsh <<<'
-LEGACY_MANAGED_MARKER='# chezmoi: managed-zshrc'
-LEGACY_MIGRATED_MARKER='# chezmoi: migrated-zshrc'
-CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
-LEGACY_LOCAL=$CONFIG_HOME/zsh/local.zsh
 INPUT=$(mktemp "${TMPDIR:-/tmp}/chezmoi-zshrc.XXXXXX")
 
 cleanup() {
@@ -37,19 +33,8 @@ if [ "$HAS_START" -ne "$HAS_END" ]; then
 	exit 1
 fi
 
-FIRST_LINE=$(sed -n '1p' "$INPUT")
-if [ "$FIRST_LINE" = "$LEGACY_MANAGED_MARKER" ]; then
-	# Upgrade from the previous repository layout. Restore the complete original
-	# .zshrc that the old migration script preserved in local.zsh.
-	if [ -f "$LEGACY_LOCAL" ] &&
-		[ "$(sed -n '1p' "$LEGACY_LOCAL")" = "$LEGACY_MIGRATED_MARKER" ]; then
-		sed '1,2d' "$LEGACY_LOCAL"
-	fi
-else
-	cat "$INPUT"
-fi
-
-if [ -s "$INPUT" ] || [ "$FIRST_LINE" = "$LEGACY_MANAGED_MARKER" ]; then
+cat "$INPUT"
+if [ -s "$INPUT" ]; then
 	printf '\n'
 fi
 
