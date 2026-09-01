@@ -53,21 +53,12 @@ if modify "$EXISTING_HOME" "$EXISTING_CONFIG" \
 	fail "incomplete loader block was accepted"
 fi
 
-# Normal local values load before Oh My Zsh initialization; the shared theme wins.
-NORMAL_CONFIG=$TEST_ROOT/normal-config
-mkdir -p "$NORMAL_CONFIG/zsh"
-printf '%s\n' 'export LOCAL_OVERRIDE_LOADED=1' 'ZSH_THEME=machine-theme' \
-	>"$NORMAL_CONFIG/zsh/local.zsh"
-XDG_CONFIG_HOME=$NORMAL_CONFIG ZSH=$TEST_ROOT/missing-oh-my-zsh \
-	zsh -f -c 'source "$1"; [ "$LOCAL_OVERRIDE_LOADED" = 1 ]; [ "$ZSH_THEME" = ys ]' \
-	test-zsh "$SHARED_CONFIG" || fail "normal local override was not loaded"
-
 # If the machine-owned .zshrc already initialized Oh My Zsh, reload the shared
-# theme so the active prompt is replaced as well as the ZSH_THEME variable.
+# theme so the active prompt is replaced as well as the variable.
 LOADED_ZSH=$TEST_ROOT/loaded-oh-my-zsh
 mkdir -p "$LOADED_ZSH/themes"
 printf '%s\n' 'export LOADED_THEME=$ZSH_THEME' >"$LOADED_ZSH/themes/ys.zsh-theme"
-XDG_CONFIG_HOME=$TEST_ROOT/no-local-config ZSH=$LOADED_ZSH ZSH_THEME=machine-theme \
+ZSH=$LOADED_ZSH ZSH_THEME=machine-theme \
 	zsh -f -c 'omz() { :; }; source "$1"; [ "$ZSH_THEME" = ys ]; [ "$LOADED_THEME" = ys ]' \
 	test-zsh "$SHARED_CONFIG" || fail "shared theme did not replace loaded machine theme"
 

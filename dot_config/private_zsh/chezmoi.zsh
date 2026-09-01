@@ -1,7 +1,5 @@
-# Shared Zsh configuration for macOS and Linux. Its parent directory is private
-# because the unmanaged local.zsh beside it may contain machine-only values.
-# Keep machine-specific paths, environment variables, and credentials in the
-# unmanaged local.zsh file loaded at the end of this file.
+# Shared Zsh configuration for macOS and Linux. Keep machine-specific paths,
+# environment variables, and credentials in the machine-owned ~/.zshrc.
 
 if [[ -z ${EDITOR:-} ]]; then
 	if (( $+commands[nvim] )); then
@@ -21,14 +19,14 @@ fi
 
 # Oh My Zsh is managed by chezmoi as an external. Prevent its own updater from
 # changing that managed checkout, and do not initialize it twice when an
-# existing machine-owned .zshrc already loaded it. The shared theme is
-# intentionally authoritative across machines.
+# existing machine-owned .zshrc already loaded it.
 if [[ -z ${ZSH:-} ]]; then
 	ZSH=$HOME/.oh-my-zsh
 fi
 export ZSH
 zstyle ':omz:update' mode disabled
 zsh_omz_already_loaded=$+functions[omz]
+ZSH_THEME=ys
 
 if (( ! zsh_omz_already_loaded )); then
 	if (( ! ${+plugins} )); then
@@ -36,15 +34,8 @@ if (( ! zsh_omz_already_loaded )); then
 	fi
 fi
 
-zsh_local_config=${XDG_CONFIG_HOME:-$HOME/.config}/zsh/local.zsh
-if [[ -r $zsh_local_config ]]; then
-	source $zsh_local_config
-fi
-
-# local.zsh may set machine-specific values, but the shared theme wins. When
-# Oh My Zsh was initialized earlier by the machine-owned .zshrc, re-source the
-# theme so the override changes the active prompt, not only the variable.
-ZSH_THEME=ys
+# If the machine-owned .zshrc initialized Oh My Zsh earlier, re-source the
+# shared theme so the configured theme also changes the active prompt.
 zsh_shared_theme_file=$ZSH/themes/$ZSH_THEME.zsh-theme
 if (( zsh_omz_already_loaded )); then
 	if [[ -r $zsh_shared_theme_file ]]; then
@@ -56,4 +47,4 @@ elif (( ! $+functions[compdef] )); then
 	autoload -Uz compinit
 	compinit -i
 fi
-unset zsh_local_config zsh_shared_theme_file zsh_omz_already_loaded
+unset zsh_shared_theme_file zsh_omz_already_loaded

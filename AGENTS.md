@@ -17,19 +17,18 @@ Linux, and heterogeneous Linux servers. Keep every change portable by default.
   genuinely requires another interpreter.
 - A missing optional command or GUI clipboard provider must degrade cleanly,
   especially on headless servers.
-- Keep shared configuration in the repository. Put host-only settings in
-  unmanaged local overrides such as `~/.config/nvim/lua/machine.lua` and
-  `~/.config/zsh/local.zsh`.
+- Keep shared configuration in the repository. Put host-only Neovim settings in
+  `~/.config/nvim/lua/machine.lua` and host-only Zsh settings directly in the
+  machine-owned `~/.zshrc`.
 - Do not add user-local binary directories, language runtime paths, proxies,
   SDK paths, or host environment variables to the managed
-  `dot_config/private_zsh/chezmoi.zsh`. Put them in the unmanaged
-  `~/.config/zsh/local.zsh` instead.
+  `dot_config/private_zsh/chezmoi.zsh`. Put them in the machine-owned
+  `~/.zshrc` instead.
 - Keep a pre-existing destination `~/.zshrc` machine-owned. Never replace it
   with a regular chezmoi-managed file. `modify_dot_zshrc` may only ensure that
   one marked loader block exists, must preserve all other contents, and must be
   idempotent. Shared Zsh behavior belongs in
-  `~/.config/zsh/chezmoi.zsh`; machine-only behavior belongs in the unmanaged
-  `~/.config/zsh/local.zsh` or the machine-owned `.zshrc`.
+  `~/.config/zsh/chezmoi.zsh`; machine-only behavior belongs in `.zshrc`.
 
 ## Safety and scope
 

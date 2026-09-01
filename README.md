@@ -106,8 +106,8 @@ chezmoi apply -v
 这是 chezmoi 官方提供的“修改现有文件”目标类型：
 [Modify file](https://www.chezmoi.io/reference/target-types/#modify-file)。
 
-可选的 `local.zsh` 会作为机器专属配置加载，并且不会上传仓库。共享配置会强制使用
-Oh My Zsh 的 `ys` 主题，机器配置中的其他主题设置不会覆盖它。
+共享配置使用 Oh My Zsh 的 `ys` 主题。机器专属的 Zsh 配置直接写在机器所有的
+`~/.zshrc` 中，不会上传仓库。
 
 Linux 上如果当前默认 shell 不是 Zsh，可以在确认 `command -v zsh` 有输出后切换：
 
@@ -174,14 +174,8 @@ Neovim 会可选加载以下未托管文件：
 vim.g.machine_role = "work"
 ```
 
-Zsh 会可选加载以下未托管文件：
-
-```text
-~/.config/zsh/local.zsh
-```
-
-机器专属的 PATH、语言运行时、SDK、代理或环境变量建议写在这里；已有 `.zshrc` 也
-保持为本机文件，不会被上传。例如当前机器需要用户级命令目录时，可以只在本地配置中加入：
+Zsh 的机器专属 PATH、语言运行时、SDK、代理或环境变量直接写入 `~/.zshrc`，放在
+chezmoi 标记的共享配置加载块之外。这个文件保持为本机文件，不会上传。例如：
 
 ```zsh
 path=(~/.local/bin $path)
@@ -227,8 +221,8 @@ chezmoi 的 age 加密。
 5. 配置必须默认兼容 macOS 和 Linux。不要硬编码用户名、HOME、主机名、CPU 架构、
    `/Users/...`、`/home/...` 或 Homebrew 安装前缀；优先使用 `$HOME`、XDG 目录、PATH
    命令探测和功能探测。缺少可选软件、剪贴板或 GUI 时应安全降级。
-6. 为机器专属配置设计不入库的本地覆盖文件，例如 Neovim 的
-   `~/.config/nvim/lua/machine.lua` 和 Zsh 的 `~/.config/zsh/local.zsh`。
+6. Neovim 的机器专属配置使用不入库的 `~/.config/nvim/lua/machine.lua`。Zsh 的
+   机器专属配置直接保留在机器所有的 `.zshrc` 中，不再增加第二个 Zsh 配置入口。
    不要整体托管或上传 `.zshrc`；把共享 Zsh 配置放在单独的托管文件中，并使用 chezmoi
    官方 `modify_` 目标类型，只在现有 `.zshrc` 中幂等地维护一段带标记的 `source` 引用。
    已有内容必须原样保留，引用已存在时不得再次修改文件。
