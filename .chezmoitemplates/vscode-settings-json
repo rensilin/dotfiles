@@ -1,0 +1,8 @@
+{{- $settings := .chezmoi.stdin | default "{}" | fromJsonc -}}
+{{ $settings
+  | setValueAtPath (list "workbench.settings.useSplitJSON") true
+  | setValueAtPath (list "editor.inlayHints.enabled") "offUnlessPressed"
+  | setValueAtPath (list "terminal.integrated.initialHint") false
+  | setValueAtPath (list "terminal.integrated.enableMultiLinePasteWarning") "never"
+  | toPrettyJson
+}}

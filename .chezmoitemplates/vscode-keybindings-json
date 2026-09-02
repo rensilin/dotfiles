@@ -1,0 +1,6 @@
+{{- $bindings := .chezmoi.stdin | default "[]" | fromJsonc -}}
+{{ $bindings
+  | jq `map(select((.key != "ctrl+-" or .command != "workbench.action.navigateBack" or .when? != null) and (.key != "ctrl+shift+-" or .command != "workbench.action.navigateForward" or .when? != null))) + [{"key":"ctrl+-","command":"workbench.action.navigateBack"},{"key":"ctrl+shift+-","command":"workbench.action.navigateForward"}]`
+  | first
+  | toPrettyJson
+}}

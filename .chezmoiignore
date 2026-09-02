@@ -5,3 +5,24 @@ install-packages.sh
 tests/**
 .config/nvim/lua/machine.lua
 .config/zsh/backups/**
+
+{{- if eq .chezmoi.os "darwin" }}
+.config/Code
+.config/Code/User/**
+{{- if and (not (lookPath "code")) (not (stat (joinPath .chezmoi.homeDir "Library/Application Support/Code/User"))) }}
+Library/Application Support/Code
+Library/Application Support/Code/User/**
+{{- end }}
+{{- else if eq .chezmoi.os "linux" }}
+Library/Application Support/Code
+Library/Application Support/Code/User/**
+{{- if and (not (lookPath "code")) (not (stat (joinPath .chezmoi.homeDir ".config/Code/User"))) }}
+.config/Code
+.config/Code/User/**
+{{- end }}
+{{- else }}
+.config/Code
+.config/Code/User/**
+Library/Application Support/Code
+Library/Application Support/Code/User/**
+{{- end }}
