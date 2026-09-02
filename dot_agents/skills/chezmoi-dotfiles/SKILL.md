@@ -36,6 +36,33 @@ Neovim overrides, secrets, caches, generated plugins, and upstream frameworks.
 - Keep the change limited to the user's request and preserve portability across
   every platform named by the repository.
 
+### Prefer native, small designs
+
+Before writing a custom parser, merge script, or external-tool integration,
+check the installed chezmoi version's help and official documentation for a
+native target type, source-state attribute, template directive, or template
+function that already models the change. Prefer those primitives when they meet
+the user's requirements; useful examples include modify templates and the
+structured-data functions for JSON, JSONC, TOML, and YAML.
+
+Compare plausible implementations before editing. Choose the smallest design
+that is portable, auditable, and explicit about its tradeoffs. If a minor
+configuration change is producing a large script, stop and look for a deeper
+chezmoi primitive or a simpler composition. Do not introduce a dependency or a
+home-grown format parser until the native options have been ruled out for a
+specific requirement.
+
+Keep shared behavior in one place. When only target paths differ across
+platforms, put the implementation in `.chezmoitemplates` and use thin
+platform-specific source entries rather than duplicating the logic.
+
+Structured-data round trips preserve values, not necessarily representation.
+For example, parsing JSONC and emitting JSON can discard comments and normalize
+formatting. Determine whether comments or byte-level formatting are part of the
+user's intent before choosing the implementation, state the tradeoff when it
+matters, and do not add preservation machinery unless that requirement
+justifies the added complexity.
+
 ## Validate and apply
 
 1. Review `git diff` and `chezmoi diff` before applying. Treat unexpected

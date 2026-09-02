@@ -3,6 +3,18 @@
 This repository is a chezmoi source state for one user across macOS, Arch
 Linux, and heterogeneous Linux servers. Keep every change portable by default.
 
+## Source-state ownership
+
+- Treat this repository as the only working copy for every chezmoi-managed
+  target. A file outside the source directory can still be managed by chezmoi.
+- Before editing a user configuration, skill, or other dotfile in its
+  destination path, resolve it with `chezmoi source-path <target>`. If it is
+  managed, edit the returned source-state path and apply that target; do not
+  leave a destination-only change that will be lost or remain unsynchronized.
+- If a managed destination was edited first, deliberately reconcile the change
+  into its source-state file, review the resulting source diff, apply the
+  target, and confirm `chezmoi status` and `chezmoi diff` are synchronized.
+
 ## Portability contract
 
 - Support macOS and Linux. Do not assume a particular Linux distribution,
