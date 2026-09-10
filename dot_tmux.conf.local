@@ -1,184 +1,29 @@
 # : << 'EOF'
-# Oh my tmux!
-# https://github.com/gpakosz/.tmux
-# Dual licensed under WTFPL v2 and MIT; Copyright 2012— Gregory Pakosz.
-#
-# 此文件只保存个人设置，上游默认配置位于 ~/.tmux.conf。
-# tmux_conf_* 是 Oh my tmux! 的变量；set / bind / if-shell 是原生 tmux 命令。
-# 修改 chezmoi 源文件后，执行 chezmoi apply ~/.tmux.conf.local，再按 Ctrl+b r 重载。
-# 配色、状态栏、快捷键和插件行为均保留原值。
+# Oh my tmux! 个人覆盖
+# 默认外观直接跟随上游；这里只保留操作习惯。
+# 修改 chezmoi 源文件后 apply，再按 Ctrl+b r 重载。
 
-# -- 会话与分屏 --
-# 新会话、新窗口使用默认目录；分屏继承当前目录。
-tmux_conf_preserve_stock_bindings=false
-tmux_conf_new_session_prompt=false
-tmux_conf_new_session_retain_current_path=false
-tmux_conf_new_window_retain_current_path=false
-tmux_conf_new_window_reconnect_ssh=false
-tmux_conf_new_pane_retain_current_path=true
-tmux_conf_new_pane_reconnect_ssh=false
-# 自动检测终端的真彩色支持。
-tmux_conf_24b_colour=auto
+# -- 上游默认值 --
+# 该目录由 chezmoi externals 管理，与 ~/.tmux.conf 指向同一份上游。
+source-file ~/.local/share/tmux/oh-my-tmux/.tmux.conf.local
 
-# -- 配色 --
-# 以下编号是 Oh my tmux! 的主题接口；每个颜色的用途见行尾注释。
-tmux_conf_theme=enabled
-
-tmux_conf_theme_colour_1="colour234"   # status background
-tmux_conf_theme_colour_2="colour237"   # border / secondary bg
-tmux_conf_theme_colour_3="colour250"   # dim foreground
-tmux_conf_theme_colour_4="colour39"    # accent blue
-tmux_conf_theme_colour_5="colour226"   # warning yellow
-tmux_conf_theme_colour_6="colour234"   # status left fg fallback
-tmux_conf_theme_colour_7="colour255"   # bright foreground
-tmux_conf_theme_colour_8="colour234"   # status left bg fallback
-tmux_conf_theme_colour_9="colour45"    # left segment accent
-tmux_conf_theme_colour_10="colour33"   # left segment accent 2
-tmux_conf_theme_colour_11="colour42"   # left segment accent 3
-tmux_conf_theme_colour_12="colour250"  # right segment fg
-tmux_conf_theme_colour_13="colour255"  # right segment fg strong
-tmux_conf_theme_colour_14="colour234"  # right segment bg strong
-tmux_conf_theme_colour_15="colour237"  # right segment bg
-tmux_conf_theme_colour_16="colour214"  # alert bg
-tmux_conf_theme_colour_17="colour255"  # alert fg
-
-# -- 窗格与提示 --
-tmux_conf_theme_window_fg="default"
-tmux_conf_theme_window_bg="default"
-
-tmux_conf_theme_highlight_focused_pane=false
-
-tmux_conf_theme_focused_pane_bg="default"
-
-tmux_conf_theme_pane_border_style=thin
-
-tmux_conf_theme_pane_border="$tmux_conf_theme_colour_2"
-tmux_conf_theme_pane_active_border="$tmux_conf_theme_colour_4"
-%if #{>=:#{version},3.2}
-tmux_conf_theme_pane_active_border="#{?pane_in_mode,$tmux_conf_theme_colour_9,#{?synchronize-panes,$tmux_conf_theme_colour_16,$tmux_conf_theme_colour_4}}"
-%endif
-
-tmux_conf_theme_pane_indicator="$tmux_conf_theme_colour_4"
-tmux_conf_theme_pane_active_indicator="$tmux_conf_theme_colour_4"
-
-tmux_conf_theme_message_fg="$tmux_conf_theme_colour_1"
-tmux_conf_theme_message_bg="$tmux_conf_theme_colour_5"
-tmux_conf_theme_message_attr="bold"
-
-tmux_conf_theme_message_command_fg="$tmux_conf_theme_colour_5"
-tmux_conf_theme_message_command_bg="$tmux_conf_theme_colour_1"
-tmux_conf_theme_message_command_attr="bold"
-
-tmux_conf_theme_mode_fg="$tmux_conf_theme_colour_1"
-tmux_conf_theme_mode_bg="$tmux_conf_theme_colour_5"
-tmux_conf_theme_mode_attr="bold"
-
-# -- 状态栏与窗口标签 --
-tmux_conf_theme_status_fg="$tmux_conf_theme_colour_3"
-tmux_conf_theme_status_bg="$tmux_conf_theme_colour_1"
-tmux_conf_theme_status_attr="none"
-
-tmux_conf_theme_terminal_title="#h ❐ #S ● #I #W"
-
-tmux_conf_theme_window_status_fg="$tmux_conf_theme_colour_3"
-tmux_conf_theme_window_status_bg="$tmux_conf_theme_colour_1"
-tmux_conf_theme_window_status_attr="none"
-tmux_conf_theme_window_status_format=" #I #W#{?window_bell_flag, !,}#{?window_zoomed_flag, ^,} "
-
-tmux_conf_theme_window_status_current_fg="$tmux_conf_theme_colour_1"
-tmux_conf_theme_window_status_current_bg="$tmux_conf_theme_colour_4"
-tmux_conf_theme_window_status_current_attr="bold"
-tmux_conf_theme_window_status_current_format=" #I #W#{?window_bell_flag, !,}#{?window_zoomed_flag, ^,} "
-
-tmux_conf_theme_window_status_activity_fg="default"
-tmux_conf_theme_window_status_activity_bg="default"
-tmux_conf_theme_window_status_activity_attr="underscore"
-
-tmux_conf_theme_window_status_bell_fg="$tmux_conf_theme_colour_5"
-tmux_conf_theme_window_status_bell_bg="default"
-tmux_conf_theme_window_status_bell_attr="blink,bold"
-
-tmux_conf_theme_window_status_last_fg="$tmux_conf_theme_colour_4"
-tmux_conf_theme_window_status_last_bg="$tmux_conf_theme_colour_2"
-tmux_conf_theme_window_status_last_attr="bold"
-
-# 左右分段符号。
-tmux_conf_theme_left_separator_main=''
-tmux_conf_theme_left_separator_sub=''
-tmux_conf_theme_right_separator_main=''
-tmux_conf_theme_right_separator_sub=''
-
-# 左侧：会话、复制或缩放状态、负载。右侧：主机、日期、时间和状态指示。
-tmux_conf_theme_status_left=" #S #{?pane_in_mode, COPY,#{?window_zoomed_flag, ZOOM,}}#{?#{!=:#{loadavg},},  LOAD #{loadavg},} "
-tmux_conf_theme_status_right=" #H  %Y-%m-%d  %H:%M #{prefix}#{mouse}#{pairing}#{synchronized} "
-
-tmux_conf_theme_status_left_fg="$tmux_conf_theme_colour_6,$tmux_conf_theme_colour_7,$tmux_conf_theme_colour_7"
-tmux_conf_theme_status_left_bg="$tmux_conf_theme_colour_4,$tmux_conf_theme_colour_2,$tmux_conf_theme_colour_11"
-tmux_conf_theme_status_left_attr="bold,none,none"
-
-tmux_conf_theme_status_right_fg="$tmux_conf_theme_colour_12,$tmux_conf_theme_colour_13,$tmux_conf_theme_colour_17"
-tmux_conf_theme_status_right_bg="$tmux_conf_theme_colour_15,$tmux_conf_theme_colour_2,$tmux_conf_theme_colour_4"
-tmux_conf_theme_status_right_attr="none,none,bold"
-
-# -- 状态指示符 --
-# PAIR：多人连接；C-b：已按前缀；M：鼠标启用；SYNC：同步输入。
-tmux_conf_theme_pairing="PAIR"
-tmux_conf_theme_pairing_fg="none"
-tmux_conf_theme_pairing_bg="none"
-tmux_conf_theme_pairing_attr="none"
-
-tmux_conf_theme_prefix="C-b"
-tmux_conf_theme_prefix_fg="none"
-tmux_conf_theme_prefix_bg="none"
-tmux_conf_theme_prefix_attr="none"
-
-tmux_conf_theme_mouse="M"
-tmux_conf_theme_mouse_fg="none"
-tmux_conf_theme_mouse_bg="none"
-tmux_conf_theme_mouse_attr="none"
-
-tmux_conf_theme_root="!"
-tmux_conf_theme_root_fg="none"
-tmux_conf_theme_root_bg="none"
-tmux_conf_theme_root_attr="bold,blink"
-
-tmux_conf_theme_synchronized="SYNC"
-tmux_conf_theme_synchronized_fg="none"
-tmux_conf_theme_synchronized_bg="none"
-tmux_conf_theme_synchronized_attr="none"
-
-# -- 电池与时钟 --
-# 当前状态栏没有显示电池；保留这些设置，供以后启用时使用。
-tmux_conf_battery_bar_symbol_full="◼"
-tmux_conf_battery_bar_symbol_empty="◻"
-
-tmux_conf_battery_bar_length="auto"
-
-tmux_conf_battery_bar_palette="gradient"
-
-tmux_conf_battery_hbar_palette="gradient"
-
-tmux_conf_battery_vbar_palette="gradient"
-
-tmux_conf_battery_status_charging="↑"       # U+2191
-tmux_conf_battery_status_discharging="↓"    # U+2193
-
-tmux_conf_theme_clock_colour="$tmux_conf_theme_colour_4"
-tmux_conf_theme_clock_style="24"
-
-# -- 剪贴板与 URL 扫描 --
-tmux_conf_copy_to_os_clipboard=true
-
-tmux_conf_urlscan_options="--compact --dedupe"
-
-# -- 通用选项与快捷键 --
+# -- 常用操作 --
 set -g history-limit 100000
-
 set -g mouse on
+set -g mode-keys vi
+# 用命令设置，确保在上面的 source-file 执行后覆盖默认值。
+set-environment -g tmux_conf_copy_to_os_clipboard true
+
+# 只使用 Ctrl+b 前缀，将 Ctrl+a 留给应用。
+unbind C-a
+set -g prefix2 None
+
+# 增加 | 作为左右分屏键；上游已有 - 上下分屏，并默认继承当前目录。
+bind | split-window -h -c '#{pane_current_path}'
 
 # -- 右键菜单 --
 # 松开右键后打开菜单，下一次点击或 Escape 才关闭。
-# 应用需要鼠标事件时，将右键传给应用。标记变量用于避免重载时重复改写绑定。
+# 标记变量防止重载时重复改写；应用需要鼠标事件时仍将右键传给应用。
 if-shell -F '#{==:#{@right_click_menu_on_mouse_up},}' {
   run-shell 'tmux list-keys -T root | grep " MouseDown3Pane " | sed "s/ MouseDown3Pane / MouseUp3Pane /" | tmux source-file -'
   set -g @right_click_menu_on_mouse_up 1
@@ -199,39 +44,15 @@ run-shell 'tmux list-keys -T root | grep -E " MouseUp3(Status|StatusLeft) " | se
 unbind-key -T root MouseDown3Status
 unbind-key -T root MouseDown3StatusLeft
 
-# -- 键盘操作 --
-# 保留 Vi 模式、窗口自动编号和现有快捷键。
-set -g status-keys vi
-set -g mode-keys vi
-
-set -g renumber-windows on
-
-set -sg escape-time 10
-
-# Ctrl+b r：重载；Ctrl+b | / -：左右 / 上下分屏，并继承当前目录。
-bind r source-file ~/.tmux.conf \; display-message 'tmux config reloaded'
-bind | split-window -h -c '#{pane_current_path}'
-bind - split-window -v -c '#{pane_current_path}'
-
-# 只使用 Ctrl+b 前缀，将 Ctrl+a 留给终端内的应用。
-unbind C-a
-set-option -g prefix2 None
-
-bind m set -g mouse \; display-message 'mouse #{?mouse,on,off}'
-
 # -- 插件与复制 --
-# Oh my tmux! 管理 TPM；Ctrl+b I 安装，Ctrl+b u 更新，Ctrl+b Alt+u 卸载。
-# 保留启动、重载时更新插件的既有设置。
-tmux_conf_update_plugins_on_launch=true
-tmux_conf_update_plugins_on_reload=true
-tmux_conf_uninstall_plugins_on_reload=true
+# sensible 保留已有的 C-p / C-n / R 等快捷键；yank 保留复制行为。
+# 安装、更新策略使用上游默认值。
 set -g @plugin 'tmux-plugins/tmux-sensible'
 set -g @plugin 'tmux-plugins/tmux-yank'
-
-set -g @yank_action 'copy-pipe'      # 按 y 复制后留在复制模式
-set -g @yank_with_mouse 'on'         # 启用插件的鼠标复制功能
+set -g @yank_action 'copy-pipe'          # 复制后留在复制模式
 set -g @yank_selection_mouse 'clipboard'
-# 双击选词并复制，三击选行并复制。
+
+# 双击复制单词，三击复制整行。
 bind-key -T copy-mode-vi DoubleClick1Pane \
     select-pane \; send-keys -X select-word \; \
     send-keys -X copy-selection
@@ -240,9 +61,8 @@ bind-key -T copy-mode-vi TripleClick1Pane \
     send-keys -X copy-selection
 
 # -- 本机覆盖 --
-# 该文件不由 chezmoi 管理；不存在时跳过。
 source-file -q ~/.config/tmux.conf.local
 
-# 以下是 Oh my tmux! 所需的 shell 标记，请保持注释形式。
+# Oh my tmux! 的 shell 标记，请保持注释形式。
 # EOF
 # "$@"
