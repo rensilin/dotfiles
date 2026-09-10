@@ -4,6 +4,7 @@ install.sh
 install-packages.sh
 tests/**
 .config/nvim/lua/machine.lua
+.config/tmux.conf.local
 .config/zsh/backups/**
 
 {{- if eq .chezmoi.os "darwin" }}
