@@ -181,9 +181,10 @@ chezmoi apply ~/.config/zsh/chezmoi.zsh
 
 ## 机器专属配置
 
-Tmux 的共享配置 `~/.config/tmux/tmux.conf.local` 会在末尾加载 `~/.config/tmux.conf.local`。
+Tmux 的共享配置 `~/.config/tmux/tmux.conf.local` 会在末尾加载同目录的 `tmux.conf.local2`。
 各台机器的额外 tmux 设置可写入这个文件，覆盖前面的共享设置。文件不存在时会跳过。
-这个文件不由 chezmoi 托管，也不应加入 Git。修改后，在 tmux 中按 `Ctrl+b` 再按 `r`
+`~/.config/tmux/tmux.conf.local2` 已加入 `.chezmoiignore`，不由 chezmoi 托管，也不应加入 Git。
+修改后，在 tmux 中按 `Ctrl+b` 再按 `r`
 重新加载配置。
 
 Neovim 会可选加载以下未托管文件：

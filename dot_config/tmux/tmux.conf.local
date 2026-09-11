@@ -70,7 +70,8 @@ bind-key -T copy-mode-vi TripleClick1Pane \
     send-keys -X copy-selection
 
 # -- 本机覆盖 --
-source-file -q ~/.config/tmux.conf.local
+# 不由 chezmoi 管理；文件不存在时静默跳过。
+source-file -q ~/.config/tmux/tmux.conf.local2
 
 # Oh my tmux! 的 shell 标记，请保持注释形式。
 # EOF
