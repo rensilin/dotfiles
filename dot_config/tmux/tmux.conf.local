@@ -60,12 +60,14 @@ set -g @plugin 'tmux-plugins/tmux-yank'
 set -g @yank_action 'copy-pipe'          # 复制后留在复制模式
 set -g @yank_selection_mouse 'clipboard'
 
-# 双击复制单词，三击复制整行。
+# 双击复制单词，三击复制整行；高亮显示 0.3 秒后复制，仍停留在复制模式。
 bind-key -T copy-mode-vi DoubleClick1Pane \
     select-pane \; send-keys -X select-word \; \
+    run-shell -d 0.3 \; \
     send-keys -X copy-selection
 bind-key -T copy-mode-vi TripleClick1Pane \
     select-pane \; send-keys -X select-line \; \
+    run-shell -d 0.3 \; \
     send-keys -X copy-selection
 
 # -- 本机覆盖 --
