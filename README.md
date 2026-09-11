@@ -154,16 +154,20 @@ sh "$(chezmoi source-path)/install-packages.sh"
 直接修改实际配置后同步回仓库：
 
 ```sh
-chezmoi re-add ~/.config/nvim ~/.tmux.conf.local ~/.config/zsh/chezmoi.zsh
+chezmoi re-add ~/.config/nvim ~/.config/tmux/tmux.conf.local ~/.config/zsh/chezmoi.zsh
 chezmoi cd
 git status --short
-git add dot_config/nvim dot_tmux.conf.local dot_config/private_zsh/chezmoi.zsh
+git add dot_config/nvim dot_config/tmux/tmux.conf.local dot_config/private_zsh/chezmoi.zsh
 git diff --cached
 git commit -m "update configuration"
 git push
 ```
 
-`~/.tmux.conf` 是指向 Oh My Tmux 上游配置的托管软链接，不应 `re-add`。
+tmux 自动加载 `~/.config/tmux/tmux.conf`，这是指向 Oh my tmux! 上游的托管软链接，
+不应 `re-add`。个人设置位于 `~/.config/tmux/tmux.conf.local`，由上游加载。
+上游代码由 chezmoi externals 管理，存放在 `~/.local/share/tmux/oh-my-tmux`。
+旧的 `~/.tmux.conf` 和
+`~/.tmux.conf.local` 由 `.chezmoiremove` 清理，避免 tmux 优先加载旧配置。
 `~/.zshrc` 是机器所有的文件，也不应 `re-add`；仓库只通过 `modify_dot_zshrc` 维护其中
 的共享配置加载块。需要修改共享 Zsh 设置时也可以直接运行：
 
@@ -177,7 +181,7 @@ chezmoi apply ~/.config/zsh/chezmoi.zsh
 
 ## 机器专属配置
 
-Tmux 的共享配置 `~/.tmux.conf.local` 会在末尾加载 `~/.config/tmux.conf.local`。
+Tmux 的共享配置 `~/.config/tmux/tmux.conf.local` 会在末尾加载 `~/.config/tmux.conf.local`。
 各台机器的额外 tmux 设置可写入这个文件，覆盖前面的共享设置。文件不存在时会跳过。
 这个文件不由 chezmoi 托管，也不应加入 Git。修改后，在 tmux 中按 `Ctrl+b` 再按 `r`
 重新加载配置。

@@ -100,7 +100,7 @@ sh tests/test-gitconfig-integration.sh
 chezmoi verify
 chezmoi diff
 nvim --headless '+lua vim.defer_fn(function() vim.cmd("qa") end, 1000)' || true
-tmux -f "$HOME/.tmux.conf" -L dotfiles-check new-session -d && tmux -L dotfiles-check kill-server
+tmux -f "$HOME/.config/tmux/tmux.conf" -L dotfiles-check new-session -d && tmux -L dotfiles-check kill-server
 ```
 
 Also inspect staged changes for secrets and absolute, machine-specific paths.

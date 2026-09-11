@@ -4,7 +4,7 @@
 # 修改 chezmoi 源文件后 apply，再按 Ctrl+b r 重载。
 
 # -- 上游默认值 --
-# 该目录由 chezmoi externals 管理，与 ~/.tmux.conf 指向同一份上游。
+# 该目录由 chezmoi externals 管理，与加载入口使用同一份上游。
 source-file ~/.local/share/tmux/oh-my-tmux/.tmux.conf.local
 
 # -- 官方演示图的分隔符 --
@@ -52,6 +52,8 @@ unbind-key -T root MouseDown3Status
 unbind-key -T root MouseDown3StatusLeft
 
 # -- 插件与复制 --
+# 沿用现有插件安装目录，迁移配置时无需重新安装。
+set-environment -g TMUX_PLUGIN_MANAGER_PATH "$HOME/.tmux/plugins"
 # sensible 保留已有的 C-p / C-n / R 等快捷键；yank 保留复制行为。
 # 安装、更新策略使用上游默认值。
 set -g @plugin 'tmux-plugins/tmux-sensible'
