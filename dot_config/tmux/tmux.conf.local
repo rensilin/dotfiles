@@ -54,9 +54,8 @@ unbind-key -T root MouseDown3StatusLeft
 # -- 插件与复制 --
 # 沿用现有插件安装目录，迁移配置时无需重新安装。
 set-environment -g TMUX_PLUGIN_MANAGER_PATH "$HOME/.tmux/plugins"
-# sensible 保留已有的 C-p / C-n / R 等快捷键；yank 保留复制行为。
+# yank 保留复制行为。
 # 安装、更新策略使用上游默认值。
-set -g @plugin 'tmux-plugins/tmux-sensible'
 set -g @plugin 'tmux-plugins/tmux-yank'
 set -g @yank_action 'copy-pipe'          # 复制后留在复制模式
 set -g @yank_selection_mouse 'clipboard'
