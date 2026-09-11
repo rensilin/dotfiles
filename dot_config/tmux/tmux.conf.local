@@ -29,27 +29,11 @@ set -g prefix2 None
 bind | split-window -h -c '#{pane_current_path}'
 
 # -- 右键菜单 --
-# 松开右键后打开菜单，下一次点击或 Escape 才关闭。
-# 标记变量防止重载时重复改写；应用需要鼠标事件时仍将右键传给应用。
-if-shell -F '#{==:#{@right_click_menu_on_mouse_up},}' {
-  run-shell 'tmux list-keys -T root | grep " MouseDown3Pane " | sed "s/ MouseDown3Pane / MouseUp3Pane /" | tmux source-file -'
-  set -g @right_click_menu_on_mouse_up 1
-}
-run-shell 'tmux list-keys -T root | grep " MouseUp3Pane " | sed "/display-menu -O /! s/display-menu /display-menu -O /" | tmux source-file -'
-bind-key -T root MouseDown3Pane if-shell -F -t = \
-  '#{||:#{mouse_any_flag},#{&&:#{pane_in_mode},#{?#{m/r:(copy|view)-mode,#{pane_mode}},0,1}}}' \
-  { select-pane -t = ; send-keys -M } \
-  { select-pane -t = }
-
-# 窗口标签和会话名称分别使用各自的右键菜单。
-if-shell -F '#{==:#{@right_click_status_menu_on_mouse_up},}' {
-  run-shell 'tmux list-keys -T root | grep " MouseDown3Status " | sed "s/ MouseDown3Status / MouseUp3Status /" | tmux source-file -'
-  run-shell 'tmux list-keys -T root | grep " MouseDown3StatusLeft " | sed "s/ MouseDown3StatusLeft / MouseUp3StatusLeft /" | tmux source-file -'
-  set -g @right_click_status_menu_on_mouse_up 1
-}
-run-shell 'tmux list-keys -T root | grep -E " MouseUp3(Status|StatusLeft) " | sed "/display-menu -O /! s/display-menu /display-menu -O /" | tmux source-file -'
-unbind-key -T root MouseDown3Status
-unbind-key -T root MouseDown3StatusLeft
+# 复用默认菜单，按下右键打开，松开后保持显示；- 表示从管道读取命令。
+run-shell 'tmux list-keys -T root | \
+  grep -E " MouseDown3(Pane|Status|StatusLeft) " | \
+  sed "/display-menu -O /! s/display-menu /display-menu -O /" | \
+  tmux source-file -'
 
 # -- 插件与复制 --
 # 沿用现有插件安装目录，迁移配置时无需重新安装。
