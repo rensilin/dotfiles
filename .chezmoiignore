@@ -4,9 +4,8 @@ install.sh
 install-packages.sh
 tests/**
 .config/nvim/lua/machine.lua
-.config/tmux.conf.local
 .config/tmux/tmux.conf.local2
-.config/zsh/backups/**
+.config/tmux/plugins/**
 
 {{- if eq .chezmoi.os "darwin" }}
 .config/Code

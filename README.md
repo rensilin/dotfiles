@@ -166,6 +166,9 @@ git push
 tmux 自动加载 `~/.config/tmux/tmux.conf`，这是指向 Oh my tmux! 上游的托管软链接，
 不应 `re-add`。个人设置位于 `~/.config/tmux/tmux.conf.local`，由上游加载。
 上游代码由 chezmoi externals 管理，存放在 `~/.local/share/tmux/oh-my-tmux`。
+tmux 插件存放在 `~/.config/tmux/plugins`，不加入仓库。旧机器迁移时，先退出 tmux，
+确认新插件目录尚不存在，再把 `~/.tmux/plugins` 移到这里，即可保留已安装的插件。
+旧的 `~/.tmux` 上游副本可能含有本地修改，不会自动删除。
 旧的 `~/.tmux.conf` 和
 `~/.tmux.conf.local` 由 `.chezmoiremove` 清理，避免 tmux 优先加载旧配置。
 `~/.zshrc` 是机器所有的文件，也不应 `re-add`；仓库只通过 `modify_dot_zshrc` 维护其中
@@ -178,6 +181,14 @@ chezmoi apply ~/.config/zsh/chezmoi.zsh
 
 `~/.gitconfig` 也不应 `re-add`。仓库只保存使用 `git config --global` 补齐缺失默认值的
 脚本，不会上传各机器已有的 Git 配置。
+
+共享配置尽量放在 `~/.config`。Oh My Zsh 上游框架放在 `~/.local/share/oh-my-zsh`，
+补全缓存放在 `${XDG_CACHE_HOME:-$HOME/.cache}/oh-my-zsh`。
+已有的 `ZSH`、`ZSH_CACHE_DIR` 和 `ZSH_COMPDUMP` 本机设置仍然优先。
+旧机器可在新框架目录尚不存在时，将 `~/.oh-my-zsh` 移到新位置；若 `.zshrc` 显式设置了
+`ZSH`，需要同步修改。旧补全缓存不会自动删除。
+`.zshrc` 和 `.gitconfig` 保留本机入口；macOS 的 VS Code 配置继续使用系统标准的
+`~/Library/Application Support/Code/User` 目录。
 
 ## 机器专属配置
 
@@ -206,8 +217,6 @@ chezmoi 标记的共享配置加载块之外。这个文件保持为本机文件
 path=(~/.local/bin $path)
 typeset -U path PATH
 ```
-
-即使仓库当前是公开的，也不要把 Token、密码或其他密钥直接写进托管配置。
 
 不要把密码、Token 或私钥提交到本仓库。需要同步敏感信息时，应使用密码管理器或
 chezmoi 的 age 加密。

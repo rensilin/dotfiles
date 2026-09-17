@@ -62,4 +62,30 @@ ZSH=$LOADED_ZSH ZSH_THEME=machine-theme \
 	zsh -f -c 'omz() { :; }; source "$1"; [ "$ZSH_THEME" = ys ]; [ "$LOADED_THEME" = ys ]' \
 	test-zsh "$SHARED_CONFIG" || fail "shared theme did not replace loaded machine theme"
 
+# New shells load the relocated framework and keep completion caches in XDG.
+FRAMEWORK_HOME=$TEST_ROOT/framework-home
+FRAMEWORK=$FRAMEWORK_HOME/.local/share/oh-my-zsh
+mkdir -p "$FRAMEWORK"
+printf '%s\n' 'export LOADED_FRAMEWORK=$ZSH' >"$FRAMEWORK/oh-my-zsh.sh"
+HOME=$FRAMEWORK_HOME XDG_CACHE_HOME="$TEST_ROOT/xdg cache" \
+	zsh -f -c '
+		unset ZSH ZSH_CACHE_DIR ZSH_COMPDUMP
+		source "$1"
+		[[ $LOADED_FRAMEWORK = $HOME/.local/share/oh-my-zsh ]] || exit 1
+		[[ $ZSH_CACHE_DIR = $XDG_CACHE_HOME/oh-my-zsh ]] || exit 1
+		[[ $ZSH_COMPDUMP = $ZSH_CACHE_DIR/zcompdump-* ]] || exit 1
+		[[ -d $ZSH_CACHE_DIR ]] || exit 1
+	' test-zsh "$SHARED_CONFIG" || fail "framework or cache did not use relocated paths"
+
+# Machine-specific cache overrides remain authoritative.
+HOME=$FRAMEWORK_HOME ZSH=$FRAMEWORK \
+ZSH_CACHE_DIR="$TEST_ROOT/custom cache" ZSH_COMPDUMP="$TEST_ROOT/custom dump/cache" \
+	zsh -f -c '
+		expected_cache=$ZSH_CACHE_DIR
+		expected_dump=$ZSH_COMPDUMP
+		source "$1"
+		[[ $ZSH_CACHE_DIR = $expected_cache ]] || exit 1
+		[[ $ZSH_COMPDUMP = $expected_dump && -d ${ZSH_COMPDUMP:h} ]] || exit 1
+	' test-zsh "$SHARED_CONFIG" || fail "machine cache overrides were lost"
+
 printf 'Zsh integration tests passed\n'

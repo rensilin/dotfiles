@@ -23,7 +23,7 @@ vim.keymap.set("t", "<C-l>", "<C-\\><C-n><C-w>l", { desc = "Move to the right wi
 
 -- Bootstrap lazy.nvim and let it manage all plugins.
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not (vim.uv or vim.loop).fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
 	local lazyrepo = "https://github.com/folke/lazy.nvim.git"
 	local output = vim.fn.system({
 		"git",
@@ -325,6 +325,6 @@ require("lazy").setup({
 -- Optional, unmanaged per-machine overrides. Ignore an absent file, but surface
 -- syntax and runtime errors when the machine-specific configuration exists.
 local machine_config = vim.fn.stdpath("config") .. "/lua/machine.lua"
-if (vim.uv or vim.loop).fs_stat(machine_config) then
+if vim.uv.fs_stat(machine_config) then
 	dofile(machine_config)
 end

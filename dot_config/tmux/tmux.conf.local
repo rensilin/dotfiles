@@ -36,8 +36,8 @@ run-shell 'tmux list-keys -T root | \
   tmux source-file -'
 
 # -- 插件与复制 --
-# 沿用现有插件安装目录，迁移配置时无需重新安装。
-set-environment -g TMUX_PLUGIN_MANAGER_PATH "$HOME/.tmux/plugins"
+# 插件与配置放在同一目录；不再使用旧的 ~/.tmux/plugins。
+set-environment -g TMUX_PLUGIN_MANAGER_PATH "$HOME/.config/tmux/plugins"
 # yank 保留复制行为。
 # 安装、更新策略使用上游默认值。
 set -g @plugin 'tmux-plugins/tmux-yank'

@@ -21,7 +21,7 @@ fi
 # changing that managed checkout, and do not initialize it twice when an
 # existing machine-owned .zshrc already loaded it.
 if [[ -z ${ZSH:-} ]]; then
-	ZSH=$HOME/.oh-my-zsh
+	ZSH=$HOME/.local/share/oh-my-zsh
 fi
 export ZSH
 zstyle ':omz:update' mode disabled
@@ -29,6 +29,10 @@ zsh_omz_already_loaded=$+functions[omz]
 ZSH_THEME=ys
 
 if (( ! zsh_omz_already_loaded )); then
+	# Keep generated completion files out of $HOME and the managed framework.
+	: ${ZSH_CACHE_DIR:=${XDG_CACHE_HOME:-$HOME/.cache}/oh-my-zsh}
+	: ${ZSH_COMPDUMP:=$ZSH_CACHE_DIR/zcompdump-${HOST%%.*}-$ZSH_VERSION}
+	mkdir -p -- "$ZSH_CACHE_DIR" "${ZSH_COMPDUMP:h}"
 	if (( ! ${+plugins} )); then
 		plugins=(git)
 	fi
@@ -45,6 +49,6 @@ elif [[ -r $ZSH/oh-my-zsh.sh ]]; then
 	source $ZSH/oh-my-zsh.sh
 elif (( ! $+functions[compdef] )); then
 	autoload -Uz compinit
-	compinit -i
+	compinit -i -d "$ZSH_COMPDUMP"
 fi
 unset zsh_shared_theme_file zsh_omz_already_loaded

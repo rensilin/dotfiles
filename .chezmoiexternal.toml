@@ -5,9 +5,9 @@
     [".local/share/tmux/oh-my-tmux".pull]
         args = ["--ff-only"]
 
-[".oh-my-zsh"]
+[".local/share/oh-my-zsh"]
     type = "git-repo"
     url = "https://github.com/ohmyzsh/ohmyzsh.git"
     refreshPeriod = "168h"
-    [".oh-my-zsh".pull]
+    [".local/share/oh-my-zsh".pull]
         args = ["--ff-only"]

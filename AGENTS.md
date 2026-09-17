@@ -17,6 +17,10 @@ Linux, and heterogeneous Linux servers. Keep every change portable by default.
 
 ## Portability contract
 
+- Keep shared configuration under `~/.config`, upstream frameworks under
+  `~/.local/share`, and generated caches under `${XDG_CACHE_HOME:-$HOME/.cache}`.
+  tmux plugins belong in `~/.config/tmux/plugins`; do not restore references to
+  `~/.tmux/plugins` or the default `~/.oh-my-zsh` framework directory.
 - Support macOS and Linux. Do not assume a particular Linux distribution,
   init system, desktop environment, package manager, CPU architecture, or
   interactive shell.
