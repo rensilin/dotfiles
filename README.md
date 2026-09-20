@@ -169,8 +169,8 @@ tmux 自动加载 `~/.config/tmux/tmux.conf`，这是指向 Oh my tmux! 上游�
 tmux 插件存放在 `~/.config/tmux/plugins`，不加入仓库。旧机器迁移时，先退出 tmux，
 确认新插件目录尚不存在，再把 `~/.tmux/plugins` 移到这里，即可保留已安装的插件。
 旧的 `~/.tmux` 上游副本可能含有本地修改，不会自动删除。
-旧的 `~/.tmux.conf` 和
-`~/.tmux.conf.local` 由 `.chezmoiremove` 清理，避免 tmux 优先加载旧配置。
+旧的 `~/.tmux.conf` 和 `~/.tmux.conf.local` 不会自动删除；确认设置已迁移后手动清理，
+避免 tmux 优先加载旧配置。
 `~/.zshrc` 是机器所有的文件，也不应 `re-add`；仓库只通过 `modify_dot_zshrc` 维护其中
 的共享配置加载块。需要修改共享 Zsh 设置时也可以直接运行：
 
@@ -185,8 +185,7 @@ chezmoi apply ~/.config/zsh/chezmoi.zsh
 共享配置尽量放在 `~/.config`。Oh My Zsh 上游框架放在 `~/.local/share/oh-my-zsh`，
 补全缓存放在 `${XDG_CACHE_HOME:-$HOME/.cache}/oh-my-zsh`。
 已有的 `ZSH`、`ZSH_CACHE_DIR` 和 `ZSH_COMPDUMP` 本机设置仍然优先。
-`chezmoi apply`（包括 `chezmoi update` 的应用阶段）会按 `.chezmoiremove` 删除旧的
-`~/.oh-my-zsh` 及其全部内容。旧目录中自行添加的插件或主题需要在更新前另行保存。
+旧的 `~/.oh-my-zsh` 不会自动删除，确认新框架正常加载、需要保留的插件和主题已迁移后再手动清理。
 若 `.zshrc` 显式设置了 `ZSH`，需要同步改为新路径；旧补全缓存不会自动删除。
 更新后可执行 `unset ZSH; exec zsh`，清除旧终端继承的框架路径。若正在使用 tmux，
 先在 tmux 中执行 `tmux set-environment -gu ZSH` 和 `tmux set-environment -u ZSH`，
