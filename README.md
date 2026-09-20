@@ -185,10 +185,19 @@ chezmoi apply ~/.config/zsh/chezmoi.zsh
 共享配置尽量放在 `~/.config`。Oh My Zsh 上游框架放在 `~/.local/share/oh-my-zsh`，
 补全缓存放在 `${XDG_CACHE_HOME:-$HOME/.cache}/oh-my-zsh`。
 已有的 `ZSH`、`ZSH_CACHE_DIR` 和 `ZSH_COMPDUMP` 本机设置仍然优先。
-旧机器可在新框架目录尚不存在时，将 `~/.oh-my-zsh` 移到新位置；若 `.zshrc` 显式设置了
-`ZSH`，需要同步修改。旧补全缓存不会自动删除。
+`chezmoi apply`（包括 `chezmoi update` 的应用阶段）会按 `.chezmoiremove` 删除旧的
+`~/.oh-my-zsh` 及其全部内容。旧目录中自行添加的插件或主题需要在更新前另行保存。
+若 `.zshrc` 显式设置了 `ZSH`，需要同步改为新路径；旧补全缓存不会自动删除。
+更新后可执行 `unset ZSH; exec zsh`，清除旧终端继承的框架路径。若正在使用 tmux，
+先在 tmux 中执行 `tmux set-environment -gu ZSH` 和 `tmux set-environment -u ZSH`，
+再重新启动各窗格中的 Zsh。
 `.zshrc` 和 `.gitconfig` 保留本机入口；macOS 的 VS Code 配置继续使用系统标准的
 `~/Library/Application Support/Code/User` 目录。
+
+更早版本可能留下 `~/.config/zsh/local.zsh`、`~/.config/zsh/backups` 或
+`~/.config/tmux.conf.local`。它们可能保存原始 `.zshrc` 或本机配置，不属于上游框架，
+不会自动删除；确认所需设置已转入当前本机配置后再手动清理。
+主目录下的 `.zcompdump-*` 是旧补全缓存；确认本机的 `ZSH_COMPDUMP` 已指向新缓存目录后可清理。
 
 ## 机器专属配置
 
