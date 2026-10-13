@@ -15,8 +15,8 @@ Library/Application Support/Code
 Library/Application Support/Code/User/**
 {{- end }}
 {{- else if eq .chezmoi.os "linux" }}
-Library/Application Support/Code
-Library/Application Support/Code/User/**
+Library
+Library/**
 {{- if and (not (lookPath "code")) (not (stat (joinPath .chezmoi.homeDir ".config/Code/User"))) }}
 .config/Code
 .config/Code/User/**
@@ -24,6 +24,6 @@ Library/Application Support/Code/User/**
 {{- else }}
 .config/Code
 .config/Code/User/**
-Library/Application Support/Code
-Library/Application Support/Code/User/**
+Library
+Library/**
 {{- end }}
